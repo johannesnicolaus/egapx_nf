@@ -5,6 +5,9 @@
 */
 include { FASTQC                 } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
+include { PREPARE_EVIDENCE       } from '../subworkflows/local/prepare_evidence/main'
+include { RUN_EGAPX              } from '../subworkflows/local/run_egapx/main'
+include { ANNOTATION_QC          } from '../subworkflows/local/annotation_qc/main'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -19,7 +22,8 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_egap
 workflow EGAPX {
 
     take:
-    ch_samplesheet // channel: samplesheet read in from --input
+    ch_genomes     // channel: [ meta, fasta, reference_gff ] from --input
+    ch_reads       // channel: [ meta, [ files ] ] from --reads
     multiqc_config
     multiqc_logo
     multiqc_methods_description
@@ -30,10 +34,29 @@ workflow EGAPX {
     def ch_versions = channel.empty()
     def ch_multiqc_files = channel.empty()
     //
-    // MODULE: Run FastQC
+    // SUBWORKFLOW: RNA-seq evidence (download, rRNA removal, subsampling, long-read merging)
     //
-    FASTQC(ch_samplesheet)
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.map{ _meta, file -> file })
+    PREPARE_EVIDENCE(ch_reads, ch_genomes)
+    ch_multiqc_files = ch_multiqc_files.mix(PREPARE_EVIDENCE.out.rrna_logs.map { _meta, log -> log })
+
+    //
+    // MODULE: FastQC on the reads given to EGAPx
+    //
+    if (!params.skip_fastqc) {
+        FASTQC(PREPARE_EVIDENCE.out.short_reads)
+        ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.map { _meta, file -> file })
+    }
+
+    //
+    // SUBWORKFLOW: EGAPx (official NCBI release) on every genome
+    //
+    RUN_EGAPX(ch_genomes, PREPARE_EVIDENCE.out.short_reads, PREPARE_EVIDENCE.out.long_reads)
+
+    //
+    // SUBWORKFLOW: BUSCO and comparison with reference annotations
+    //
+    ANNOTATION_QC(ch_genomes, RUN_EGAPX.out.gff, RUN_EGAPX.out.busco_lineage)
+    ch_multiqc_files = ch_multiqc_files.mix(ANNOTATION_QC.out.busco_summaries.map { _meta, txt -> txt })
 
     //
     // Collate and save software versions

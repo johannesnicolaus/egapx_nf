@@ -1,33 +1,53 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/luscombeu/egapx/master/assets/schema_input.json",
-    "title": "luscombeu/egapx pipeline - params.input schema",
-    "description": "Schema for the file provided with params.input",
+    "$id": "https://raw.githubusercontent.com/johannesnicolaus/egapx_nf/master/assets/schema_input.json",
+    "title": "luscombeu/egapx pipeline - params.input schema (genomes)",
+    "description": "One row per genome to annotate",
     "type": "array",
     "items": {
         "type": "object",
         "properties": {
-            "sample": {
+            "genome_id": {
                 "type": "string",
-                "pattern": "^\\S+$",
-                "errorMessage": "Sample name must be provided and cannot contain spaces",
+                "pattern": "^[A-Za-z0-9_.]+$",
+                "errorMessage": "genome_id must be provided and may only contain letters, digits, '_' and '.'",
                 "meta": ["id"]
             },
-            "fastq_1": {
+            "fasta": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
-                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "pattern": "^\\S+\\.(fa|fasta|fna)$",
+                "errorMessage": "Genome FASTA must exist, be uncompressed and end in .fa, .fasta or .fna"
             },
-            "fastq_2": {
+            "evidence_group": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_]+$",
+                "errorMessage": "evidence_group must match a group in the --reads samplesheet (letters, digits, '_')",
+                "meta": ["evidence_group"]
+            },
+            "taxid": {
+                "type": "integer",
+                "minimum": 1,
+                "errorMessage": "taxid must be the NCBI Taxonomy ID of the organism",
+                "meta": ["taxid"]
+            },
+            "size_class": {
+                "type": "string",
+                "enum": ["small", "large"],
+                "default": "small",
+                "errorMessage": "size_class must be 'small' or 'large'",
+                "meta": ["size_class"]
+            },
+            "reference_gff": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
-                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "pattern": "^\\S+\\.(gff|gff3|gtf)(\\.gz)?$",
+                "errorMessage": "reference_gff must be an existing GFF/GTF file (optional)"
             }
         },
-        "required": ["sample", "fastq_1"]
-    }
+        "required": ["genome_id", "fasta", "evidence_group", "taxid"]
+    },
+    "uniqueEntries": ["genome_id"]
 }

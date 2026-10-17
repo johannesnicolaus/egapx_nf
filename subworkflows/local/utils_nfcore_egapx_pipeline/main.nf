@@ -31,7 +31,8 @@ workflow PIPELINE_INITIALISATION {
     monochrome_logs   // boolean: Do not use coloured log outputs
     nextflow_cli_args //   array: List of positional nextflow CLI args
     outdir            //  string: The output directory where the results will be saved
-    input             //  string: Path to input samplesheet
+    input             //  string: Path to the genomes samplesheet (--input)
+    reads             //  string: Path to the RNA-seq evidence samplesheet (--reads)
     help              // boolean: Display help message and exit
     help_full         // boolean: Show the full help message
     show_hidden       // boolean: Show hidden parameters in the help message
@@ -60,7 +61,7 @@ workflow PIPELINE_INITIALISATION {
         before_text = before_text.replaceAll(/\033\[[0-9;]*m/, '')
     }
 
-    command = "nextflow run ${workflow.manifest.name} -profile <docker/singularity/.../institute> --input samplesheet.csv --outdir <OUTDIR>"
+    command = "nextflow run ${workflow.manifest.name} -profile <docker/singularity/.../institute> --input genomes.csv --reads reads.csv --egapx_cache_dir <DIR> --egapx_workdir <DIR> --outdir <OUTDIR>"
 
     UTILS_NFSCHEMA_PLUGIN (
         workflow,
@@ -83,32 +84,25 @@ workflow PIPELINE_INITIALISATION {
     )
 
     //
-    // Create channel from input file provided through params.input
+    // Genomes: one row per genome (--input)
     //
+    def genome_rows = samplesheetToList(input, "${projectDir}/assets/schema_input.json")
+    ch_genomes = channel.fromList(genome_rows)
+        .map { meta, fasta, reference_gff ->
+            [ meta + [ size_class: meta.size_class ?: 'small' ], fasta, reference_gff ?: [] ]
+        }
 
-    channel
-        .fromList(samplesheetToList(input, "${projectDir}/assets/schema_input.json"))
-        .map {
-            meta, fastq_1, fastq_2 ->
-                if (!fastq_2) {
-                    return [ meta.id, meta + [ single_end:true ], [ fastq_1 ] ]
-                } else {
-                    return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
-                }
-        }
-        .groupTuple()
-        .map { samplesheet ->
-            validateInputSamplesheet(samplesheet)
-        }
-        .map {
-            meta, fastqs ->
-                return [ meta, fastqs.flatten() ]
-        }
-        .set { ch_samplesheet }
+    //
+    // RNA-seq evidence: one row per library / long-read run (--reads)
+    //
+    def read_rows = samplesheetToList(reads, "${projectDir}/assets/schema_reads.json")
+    def checked = validateReadsSamplesheet(read_rows, genome_rows.collect { row -> row[0].evidence_group }.unique())
+    ch_reads = channel.fromList(checked)
 
     emit:
-    samplesheet = ch_samplesheet
-    versions    = ch_versions
+    genomes  = ch_genomes  // channel: [ meta(id, evidence_group, taxid, size_class), fasta, reference_gff|[] ]
+    reads    = ch_reads    // channel: [ meta(id, library, evidence_group, read_type, sra, condition), [ files ] ]
+    versions = ch_versions
 }
 
 /*
@@ -163,19 +157,45 @@ workflow PIPELINE_COMPLETION {
 */
 
 //
-// Validate channels from input samplesheet
+// EGAPx-safe library name: EGAPx derives run names from file names after the last '-' (so hyphens
+// collide), and treats any name or read name containing an SRA accession as an SRA run.
 //
-def validateInputSamplesheet(input) {
-    def (metas, fastqs) = input[1..2]
-
-    // Check that multiple runs of the same sample are of the same datatype i.e. single-end / paired-end
-    def endedness_ok = metas.collect{ meta -> meta.single_end }.unique().size == 1
-    if (!endedness_ok) {
-        error("Please check input samplesheet -> Multiple runs of a sample must be of the same datatype i.e. single-end or paired-end: ${metas[0].id}")
-    }
-
-    return [ metas[0], fastqs ]
+def sanitizeLibraryName(String name) {
+    return name.replaceAll(/[DES]RR([0-9]+)/, 'run$1').replaceAll(/[^A-Za-z0-9_.]/, '_')
 }
+
+//
+// Validate the RNA-seq samplesheet and attach EGAPx-safe names (meta.id)
+//
+def validateReadsSamplesheet(rows, genome_groups) {
+    def out = rows.collect { meta, fastq_1, fastq_2 ->
+        def files = [ fastq_1, fastq_2 ].findAll { f -> f }
+        if (meta.read_type != 'short' && fastq_2) {
+            error("Long-read library ${meta.library}: fastq_2 is only for paired-end short reads")
+        }
+        if (fastq_1 && file(fastq_1).isDirectory() && meta.read_type == 'short') {
+            error("Short-read library ${meta.library}: fastq_1 must be a file, not a directory")
+        }
+        def id = sanitizeLibraryName(meta.library)
+        [ meta + [ id: id, single_end: (meta.read_type == 'short' && !fastq_2 && !meta.sra) ], files ]
+    }
+    out.groupBy { row -> [ row[0].evidence_group, row[0].id ] }.each { key, dups ->
+        if (dups.size() > 1) {
+            error("Library names collide after sanitising for EGAPx (group ${key[0]}): " + dups.collect { row -> row[0].library }.join(', '))
+        }
+    }
+    def read_groups = out.collect { row -> row[0].evidence_group }.unique()
+    def missing = genome_groups - read_groups
+    if (missing) {
+        error("No RNA-seq evidence in --reads for evidence_group(s): ${missing.join(', ')}")
+    }
+    def unused = read_groups - genome_groups
+    if (unused) {
+        log.warn("RNA-seq evidence groups not used by any genome: ${unused.join(', ')}")
+    }
+    return out
+}
+
 //
 // Generate methods description for MultiQC
 //

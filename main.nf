@@ -3,7 +3,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     luscombeu/egapx
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Github : https://github.com/luscombeu/egapx
+    Github : https://github.com/johannesnicolaus/egapx_nf
 ----------------------------------------------------------------------------------------
 */
 
@@ -36,7 +36,8 @@ workflow LUSCOMBEU_EGAPX {
     // WORKFLOW: Run pipeline
     //
     EGAPX (
-        samplesheet,
+        genomes,
+        reads,
         params.multiqc_config,
         params.multiqc_logo,
         params.multiqc_methods_description,
@@ -64,6 +65,7 @@ workflow {
         args,
         params.outdir,
         params.input,
+        params.reads,
         params.help,
         params.help_full,
         params.show_hidden
@@ -73,7 +75,8 @@ workflow {
     // WORKFLOW: Run main workflow
     //
     LUSCOMBEU_EGAPX (
-        PIPELINE_INITIALISATION.out.samplesheet
+        PIPELINE_INITIALISATION.out.genomes,
+        PIPELINE_INITIALISATION.out.reads
     )
     //
     // SUBWORKFLOW: Run completion tasks

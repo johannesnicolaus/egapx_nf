@@ -5,14 +5,54 @@
         "https://github.com/nf-core/modules.git": {
             "modules": {
                 "nf-core": {
+                    "barrnap": {
+                        "branch": "master",
+                        "git_sha": "17a04dd063d315283ad67217fffbf818179a0946",
+                        "installed_by": ["modules"]
+                    },
+                    "bbmap/bbduk": {
+                        "branch": "master",
+                        "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
+                        "installed_by": ["modules"]
+                    },
+                    "bedtools/getfasta": {
+                        "branch": "master",
+                        "git_sha": "06054b469d0997aa3442ba1373e17a641260f451",
+                        "installed_by": ["modules"]
+                    },
+                    "busco/busco": {
+                        "branch": "master",
+                        "git_sha": "5d0b9662e1ba73bd252d1f27978d2633174176ff",
+                        "installed_by": ["modules"]
+                    },
                     "fastqc": {
                         "branch": "master",
                         "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
                         "installed_by": ["modules"]
                     },
+                    "gffcompare": {
+                        "branch": "master",
+                        "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
+                        "installed_by": ["modules"]
+                    },
+                    "gffread": {
+                        "branch": "master",
+                        "git_sha": "b3d1ca84b3f0051498abb91bd4333b701be4384d",
+                        "installed_by": ["modules"]
+                    },
                     "multiqc": {
                         "branch": "master",
                         "git_sha": "98403d15b0e50edae1f3fec5eae5e24982f1fade",
+                        "installed_by": ["modules"]
+                    },
+                    "sratools/fasterqdump": {
+                        "branch": "master",
+                        "git_sha": "c8f20a5b1c9ac08e48a3e317276a97904066bd3a",
+                        "installed_by": ["modules"]
+                    },
+                    "sratools/prefetch": {
+                        "branch": "master",
+                        "git_sha": "c8f20a5b1c9ac08e48a3e317276a97904066bd3a",
                         "installed_by": ["modules"]
                     }
                 }
