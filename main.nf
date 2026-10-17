@@ -28,7 +28,8 @@ include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_egap
 workflow LUSCOMBEU_EGAPX {
 
     take:
-    samplesheet // channel: samplesheet read in from --input
+    genomes // channel: genomes from --input
+    reads   // channel: RNA-seq evidence from --reads
 
     main:
 

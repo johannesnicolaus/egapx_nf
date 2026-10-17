@@ -1,0 +1,6 @@
+evidence_group,library,read_type,fastq_1,fastq_2,sra,condition
+okinawa,Oki-HB-1,short,/path/to/Oki-HB-1_R1.fastq.gz,/path/to/Oki-HB-1_R2.fastq.gz,,head_bud
+mainland,PRJDB5668_Stage_8_3,short,,,DRR090324,stage8
+mainland,S2_HL_cDNA,long_cdna,/path/to/guppy/S2_HL_cDNA/pass,,,S2_HL
+mainland,S2_HL_RNA,long_rna,/path/to/S2_HL_RNA.fastq.gz,,,S2_HL
+europe,PRJNA1492068_4hph,short,,,SRR39518291,4hph

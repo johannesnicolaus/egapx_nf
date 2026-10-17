@@ -1,3 +1,4 @@
-sample,fastq_1,fastq_2
-SAMPLE_PAIRED_END,/path/to/fastq/files/AEG588A1_S1_L002_R1_001.fastq.gz,/path/to/fastq/files/AEG588A1_S1_L002_R2_001.fastq.gz
-SAMPLE_SINGLE_END,/path/to/fastq/files/AEG588A4_S4_L003_R1_001.fastq.gz,
+genome_id,fasta,evidence_group,taxid,size_class,reference_gff,id_prefix
+I25_prim,/path/to/I25_primary_assembly.fa,okinawa,34765,small,/path/to/I25_augustus.gff3,I25P
+AOM5_prim,/path/to/AOM5_primary_assembly.fasta,mainland,34765,large,,AOM5P
+BAR12_prim,/path/to/BAR12_primary_assembly.fa,europe,34765,small,,BAR12P

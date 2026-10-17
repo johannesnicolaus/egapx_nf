@@ -9,6 +9,17 @@ Initial release of luscombeu/egapx, created with the [nf-core](https://nf-co.re/
 
 ### `Added`
 
+- Two samplesheets: genomes (`--input`) and RNA-seq evidence (`--reads`), linked by `evidence_group`.
+- Evidence preparation: SRA download, optional one library per condition, rRNA removal (BBDuk against
+  barrnap rRNA genes or `--rrna_fasta`), subsampling to `--max_pairs_per_library`, EGAPx-safe library and read
+  names, long-read merging and U->T conversion for direct RNA.
+- EGAPx: official NCBI release pinned with `--egapx_version`; one head job per genome with separate concurrency
+  limits for small and large genomes, resume through EGAPx's own `resume.sh`, and work directories deleted on success.
+- Stable gene IDs (`<id_prefix>_<chr>g<number>`, `.tN`, `.pN`) with EGAPx IDs kept as `egapx_id`; renamed
+  GFF3/GTF/FASTA and an old-to-new ID table (`--skip_rename`, `--gene_id_step`, `--gene_id_digits`).
+- QC: BUSCO on the longest protein per gene (EGAPx and reference annotations) and a CDS-level gffcompare
+  against reference annotations.
+
 ### `Fixed`
 
 ### `Dependencies`

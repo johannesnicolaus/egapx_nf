@@ -406,6 +406,30 @@
                     "description": "Skip the comparison with reference_gff annotations."
                 }
             }
+        },
+        "rename_options": {
+            "title": "Gene ID options",
+            "type": "object",
+            "fa_icon": "fas fa-tag",
+            "description": "Stable, genome-unique IDs for the EGAPx annotation.",
+            "properties": {
+                "skip_rename": {
+                    "type": "boolean",
+                    "description": "Do not rename; keep EGAPx's temporary egapxtmp_ IDs."
+                },
+                "gene_id_step": {
+                    "type": "integer",
+                    "default": 10,
+                    "minimum": 1,
+                    "description": "Step between consecutive gene numbers along a chromosome (gaps allow inserting genes later)."
+                },
+                "gene_id_digits": {
+                    "type": "integer",
+                    "default": 6,
+                    "minimum": 4,
+                    "description": "Zero-padded width of the gene number."
+                }
+            }
         }
     },
     "allOf": [
@@ -417,6 +441,9 @@
         },
         {
             "$ref": "#/$defs/egapx_options"
+        },
+        {
+            "$ref": "#/$defs/rename_options"
         },
         {
             "$ref": "#/$defs/qc_options"

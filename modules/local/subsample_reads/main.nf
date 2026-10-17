@@ -29,7 +29,7 @@ process SUBSAMPLE_READS {
     i=1
     for f in ${reads.join(' ')}; do
         seqtk sample -2 -s ${seed} \$f ${n} \\
-            | sed -E '1~4 s/^@[DES]RR[0-9]+\\./@read./' \\
+            | awk 'NR % 4 == 1 { sub(/^@[DES]RR[0-9]+\\./, "@read.") } 1' \\
             | gzip -c > ${meta.id}_R\${i}.fastq.gz
         i=\$((i + 1))
     done

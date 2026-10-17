@@ -8,6 +8,7 @@ include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { PREPARE_EVIDENCE       } from '../subworkflows/local/prepare_evidence/main'
 include { RUN_EGAPX              } from '../subworkflows/local/run_egapx/main'
 include { ANNOTATION_QC          } from '../subworkflows/local/annotation_qc/main'
+include { RENAME_ANNOTATION      } from '../modules/local/rename_annotation/main'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -55,7 +56,16 @@ workflow EGAPX {
     //
     // SUBWORKFLOW: BUSCO and comparison with reference annotations
     //
-    ANNOTATION_QC(ch_genomes, RUN_EGAPX.out.gff, RUN_EGAPX.out.busco_lineage)
+    //
+    // MODULE: stable, genome-unique gene IDs (EGAPx IDs kept as egapx_id)
+    //
+    def ch_final_gff = RUN_EGAPX.out.gff
+    if (!params.skip_rename) {
+        RENAME_ANNOTATION(RUN_EGAPX.out.outdir, params.gene_id_step, params.gene_id_digits)
+        ch_final_gff = RENAME_ANNOTATION.out.gff
+    }
+
+    ANNOTATION_QC(ch_genomes, ch_final_gff, RUN_EGAPX.out.busco_lineage)
     ch_multiqc_files = ch_multiqc_files.mix(ANNOTATION_QC.out.busco_summaries.map { _meta, txt -> txt })
 
     //

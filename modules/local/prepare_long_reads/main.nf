@@ -26,7 +26,7 @@ process PREPARE_LONG_READS {
     find -L input -type f \\( -name '*.fastq' -o -name '*.fq' -o -name '*.fastq.gz' -o -name '*.fq.gz' \\) | sort > files.txt
     [ -s files.txt ] || { echo "no FASTQ files found for ${meta.id}" >&2; exit 1; }
     seqkit seq ${rna2dna} -j ${task.cpus} --infile-list files.txt \\
-        | sed -E '1~4 s/^@[DES]RR[0-9]+\\./@read./' \\
+        | awk 'NR % 4 == 1 { sub(/^@[DES]RR[0-9]+\\./, "@read.") } 1' \\
         | seqkit seq -j ${task.cpus} -o ${meta.id}.fastq.gz
     seqkit stats -T -j ${task.cpus} ${meta.id}.fastq.gz > ${meta.id}.stats.tsv
     """

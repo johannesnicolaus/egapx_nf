@@ -87,9 +87,14 @@ workflow PIPELINE_INITIALISATION {
     // Genomes: one row per genome (--input)
     //
     def genome_rows = samplesheetToList(input, "${projectDir}/assets/schema_input.json")
+    def prefixes = genome_rows.collect { row -> row[0].id_prefix ?: row[0].id.replaceAll(/[^A-Za-z0-9]/, '') }
+    def dup_prefixes = prefixes.countBy { it }.findAll { _k, n -> n > 1 }.keySet()
+    if (dup_prefixes) {
+        error("Gene ID prefixes must be unique across genomes (set id_prefix in --input): ${dup_prefixes.join(', ')}")
+    }
     ch_genomes = channel.fromList(genome_rows)
         .map { meta, fasta, reference_gff ->
-            [ meta + [ size_class: meta.size_class ?: 'small' ], fasta, reference_gff ?: [] ]
+            [ meta + [ size_class: meta.size_class ?: 'small', id_prefix: meta.id_prefix ?: meta.id.replaceAll(/[^A-Za-z0-9]/, '') ], fasta, reference_gff ?: [] ]
         }
 
     //

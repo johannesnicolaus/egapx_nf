@@ -53,7 +53,7 @@ workflow RUN_EGAPX {
         params.egapx_executor,
         params.egapx_container ?: ''
     )
-    def ch_egapx = EGAPX_SETUP.out.egapx.first()
+    def ch_egapx = EGAPX_SETUP.out.egapx
 
     EGAPX_DOWNLOAD(
         MAKE_EGAPX_INPUT.out.input

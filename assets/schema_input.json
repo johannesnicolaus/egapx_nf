@@ -11,7 +11,9 @@
                 "type": "string",
                 "pattern": "^[A-Za-z0-9_.]+$",
                 "errorMessage": "genome_id must be provided and may only contain letters, digits, '_' and '.'",
-                "meta": ["id"]
+                "meta": [
+                    "id"
+                ]
             },
             "fasta": {
                 "type": "string",
@@ -24,20 +26,29 @@
                 "type": "string",
                 "pattern": "^[A-Za-z0-9_]+$",
                 "errorMessage": "evidence_group must match a group in the --reads samplesheet (letters, digits, '_')",
-                "meta": ["evidence_group"]
+                "meta": [
+                    "evidence_group"
+                ]
             },
             "taxid": {
                 "type": "integer",
                 "minimum": 1,
                 "errorMessage": "taxid must be the NCBI Taxonomy ID of the organism",
-                "meta": ["taxid"]
+                "meta": [
+                    "taxid"
+                ]
             },
             "size_class": {
                 "type": "string",
-                "enum": ["small", "large"],
+                "enum": [
+                    "small",
+                    "large"
+                ],
                 "default": "small",
                 "errorMessage": "size_class must be 'small' or 'large'",
-                "meta": ["size_class"]
+                "meta": [
+                    "size_class"
+                ]
             },
             "reference_gff": {
                 "type": "string",
@@ -45,9 +56,24 @@
                 "exists": true,
                 "pattern": "^\\S+\\.(gff|gff3|gtf)(\\.gz)?$",
                 "errorMessage": "reference_gff must be an existing GFF/GTF file (optional)"
+            },
+            "id_prefix": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9]+$",
+                "errorMessage": "id_prefix may only contain letters and digits (used in gene IDs, e.g. I25P_1g000010)",
+                "meta": [
+                    "id_prefix"
+                ]
             }
         },
-        "required": ["genome_id", "fasta", "evidence_group", "taxid"]
+        "required": [
+            "genome_id",
+            "fasta",
+            "evidence_group",
+            "taxid"
+        ]
     },
-    "uniqueEntries": ["genome_id"]
+    "uniqueEntries": [
+        "genome_id"
+    ]
 }
