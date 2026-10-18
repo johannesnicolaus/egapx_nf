@@ -8,7 +8,7 @@ process SUBSAMPLE_READS {
         'quay.io/biocontainers/seqtk:1.4--he4a0461_2' }"
 
     input:
-    tuple val(meta), path(reads)
+    tuple val(meta), path(reads, stageAs: "input/*")
     val max_pairs
     val seed
 
