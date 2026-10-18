@@ -45,8 +45,9 @@ def chrom_code(name):
 
 
 def iso_number(eid):
+    # EGAPx isoforms are -R1, -R2...; variants without a number (e.g. misc_RNA) sort after them
     m = re.search(r'-[RP](\d+)$', eid)
-    return int(m.group(1)) if m else 1
+    return int(m.group(1)) if m else 10 ** 6
 
 
 def read_fasta(path):
