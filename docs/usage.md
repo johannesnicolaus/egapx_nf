@@ -102,11 +102,11 @@ EGAPx's IDs (`egapxtmp_007973`) are temporary and differ between genomes and run
 
 | Feature    | ID                                         | Example                                      |
 | ---------- | ------------------------------------------ | -------------------------------------------- |
-| gene       | `<id_prefix>_<chr>g<number>`               | `I25P_1g000010`, `I25P_XSRg000130`           |
-| transcript | `<gene>.t<n>` (`.t1` when only one isoform) | `I25P_1g000010.t1`                           |
-| protein    | `<gene>.p<n>` (same `n` as the transcript) | `I25P_1g000010.p1`                           |
+| gene       | `<id_prefix>_<seq>g<number>`               | `I25P_chr1g000010`, `I25P_XSRg000130`           |
+| transcript | `<gene>.t<n>` (`.t1` when only one isoform) | `I25P_chr1g000010.t1`                           |
+| protein    | `<gene>.p<n>` (same `n` as the transcript) | `I25P_chr1g000010.p1`                           |
 
-- **Gene numbers:** genes are numbered along each chromosome by start position, in steps of `--gene_id_step` (10), so genes added later can be numbered in between. `<chr>` is the sequence name without `chr` or punctuation (`chrUn_1` → `Un1`).
+- **Gene numbers:** genes are numbered along each chromosome by start position, in steps of `--gene_id_step` (10), so genes added later can be numbered in between. `<seq>` is the sequence name without punctuation (`chrUn_1` → `chrUn1`).
 - **Isoform order:** EGAPx's order (R1 → `.t1`).
 - **Original IDs:** kept in an `egapx_id` attribute (GFF3) and in `egapx_gene_id` / `egapx_transcript_id` (GTF).
 - **Gene symbols:** EGAPx's ortholog-based symbols are in `gene_name` and `Name`.

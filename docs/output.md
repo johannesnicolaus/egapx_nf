@@ -18,7 +18,7 @@ All paths are relative to `--outdir`.
 <summary>Output files</summary>
 
 - `annotation/<genome_id>/`
-  - `<genome_id>.gff3`, `<genome_id>.gtf`: the annotation, with IDs `<id_prefix>_<chr>g<number>` / `.tN` / `.pN`. EGAPx IDs are kept as `egapx_id`, and gene symbols as `gene_name`.
+  - `<genome_id>.gff3`, `<genome_id>.gtf`: the annotation, with IDs `<id_prefix>_<seq>g<number>` / `.tN` / `.pN`. EGAPx IDs are kept as `egapx_id`, and gene symbols as `gene_name`.
   - `<genome_id>.proteins.faa`, `<genome_id>.transcripts.fna`, `<genome_id>.cds.fna`: EGAPx sequences with renamed headers
   - `<genome_id>.id_map.tsv`: gene, transcript and protein IDs, old and new, with coordinates, biotype and gene name
 

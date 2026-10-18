@@ -25,7 +25,7 @@ process RENAME_ANNOTATION {
     task.ext.when == null || task.ext.when
 
     script:
-    // Stable, genome-unique IDs (<prefix>_<chr>g<number>, .tN, .pN); EGAPx IDs kept as egapx_id.
+    // Stable, genome-unique IDs (<prefix>_<seq>g<number>, .tN, .pN); EGAPx IDs kept as egapx_id.
     """
     rename_egapx_annotation.py \\
         --prefix ${meta.id_prefix} \\

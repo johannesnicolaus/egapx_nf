@@ -60,7 +60,7 @@
             "id_prefix": {
                 "type": "string",
                 "pattern": "^[A-Za-z0-9]+$",
-                "errorMessage": "id_prefix may only contain letters and digits (used in gene IDs, e.g. I25P_1g000010)",
+                "errorMessage": "id_prefix may only contain letters and digits (used in gene IDs, e.g. I25P_chr1g000010)",
                 "meta": [
                     "id_prefix"
                 ]

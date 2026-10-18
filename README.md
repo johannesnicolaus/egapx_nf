@@ -29,7 +29,7 @@ within limited disk space:
     - small and large genomes have separate concurrency limits (`--max_parallel_small`, `--max_parallel_large`);
     - failed genomes resume where they stopped;
     - work directories are deleted on success.
-8. **Stable gene IDs**: `<id_prefix>_<chr>g<number>` genes (numbered along each chromosome in steps of 10),
+8. **Stable gene IDs**: `<id_prefix>_<seq>g<number>` genes (numbered along each chromosome in steps of 10),
    `.tN` transcripts and `.pN` proteins. EGAPx's temporary IDs are kept as `egapx_id`.
 9. **QC**: [`BUSCO`](https://busco.ezlab.org/) on the longest protein per gene, and an optional CDS-level comparison with
    a reference annotation ([`gffcompare`](https://github.com/gpertea/gffcompare)), summarised with

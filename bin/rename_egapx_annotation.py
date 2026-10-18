@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Give EGAPx annotations stable, genome-unique IDs.
 
-  gene        <prefix>_<chr>g<number>      e.g. I25P_1g000010, I25P_XSRg000130, I25P_Un1g000010
+  gene        <prefix>_<seq>g<number>      e.g. I25P_chr1g000010, I25P_XSRg000130, I25P_chrUn1g000010
   transcript  <gene>.t<n>                  isoforms in EGAPx order (R1 -> .t1, R2 -> .t2, ...)
   protein     <gene>.p<n>                  same n as its transcript
 
 Genes are numbered along each sequence by start position, in steps of --step (default 10) so that genes
-added later can be numbered in between. The chromosome code is the sequence name without a leading
-'chr' and without non-alphanumeric characters (chr1 -> 1, chrUn_1 -> Un1).
+added later can be numbered in between. <seq> is the sequence name without non-alphanumeric characters
+(chr1 -> chr1, chrUn_1 -> chrUn1).
 
 The EGAPx IDs are kept in an `egapx_id` attribute, and `gene_name` holds EGAPx's ortholog-based
 gene symbol when there is one. Sequences are EGAPx's own FASTA files with renamed headers: they
@@ -39,9 +39,8 @@ def fmt_attrs(a):
 
 
 def chrom_code(name):
-    c = re.sub(r'^chr', '', name, flags=re.IGNORECASE)
-    c = re.sub(r'[^A-Za-z0-9]', '', c)
-    return c or 'X'
+    # sequence name without punctuation: chr1 -> chr1, chrUn_1 -> chrUn1, XSR -> XSR
+    return re.sub(r'[^A-Za-z0-9]', '', name) or 'seq'
 
 
 def iso_number(eid):
