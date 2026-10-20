@@ -9,12 +9,12 @@ Content-Type: text/html; charset=utf-8
 $email_html
 
 --nfcoremimeboundary
-Content-Type: image/png;name="luscombeu-egapx_logo.png"
+Content-Type: image/png;name="johannesnicolaus-egapx_nf_logo.png"
 Content-Transfer-Encoding: base64
 Content-ID: <nfcorepipelinelogo>
-Content-Disposition: inline; filename="luscombeu-egapx_logo_light.png"
+Content-Disposition: inline; filename="johannesnicolaus-egapx_nf_logo_light.png"
 
-<% out << new File("$projectDir/assets/luscombeu-egapx_logo_light.png").
+<% out << new File("$projectDir/assets/johannesnicolaus-egapx_nf_logo_light.png").
     bytes.
     encodeBase64().
     toString().

@@ -225,7 +225,7 @@ def main():
         for h in header:
             if not h.startswith('##gff-version'):
                 fh.write(h + '\n')
-        fh.write(f'# IDs renamed by luscombeu/egapx (rename_egapx_annotation.py, prefix {a.prefix}); EGAPx IDs in egapx_id\n')
+        fh.write(f'# IDs renamed by johannesnicolaus/egapx_nf (rename_egapx_annotation.py, prefix {a.prefix}); EGAPx IDs in egapx_id\n')
         fh.write('\n'.join(out_gff) + '\n')
 
     with open(f'{a.out_prefix}.gtf', 'w') as fh:

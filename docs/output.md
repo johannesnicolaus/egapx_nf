@@ -1,4 +1,4 @@
-# luscombeu/egapx: Output
+# johannesnicolaus/egapx_nf: Output
 
 All paths are relative to `--outdir`.
 

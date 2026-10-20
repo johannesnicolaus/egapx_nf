@@ -1,6 +1,6 @@
 {
-    "name": "luscombeu/egapx",
-    "homePage": "https://github.com/luscombeu/egapx",
+    "name": "johannesnicolaus/egapx_nf",
+    "homePage": "https://github.com/johannesnicolaus/egapx_nf",
     "repos": {
         "https://github.com/nf-core/modules.git": {
             "modules": {

@@ -26,7 +26,7 @@ bind_opts=""
 for b in ${binds//,/ }; do bind_opts="$bind_opts -B $b"; done
 
 {
-    echo "// written by luscombeu/egapx (bin/egapx_write_config.sh)"
+    echo "// written by johannesnicolaus/egapx_nf (bin/egapx_write_config.sh)"
     echo 'includeConfig "./process_resources.config"'
     case $executor in
         docker)

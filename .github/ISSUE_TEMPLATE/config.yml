@@ -4,4 +4,4 @@ contact_links:
     about: Please join the nf-core community here
   - name: "Slack #egapx channel"
     url: https://nfcore.slack.com/channels/egapx
-    about: Discussion about the luscombeu/egapx pipeline
+    about: Discussion about the johannesnicolaus/egapx_nf pipeline

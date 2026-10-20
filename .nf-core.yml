@@ -27,8 +27,8 @@ lint:
     - .github/workflows/awsfulltest.yml
 
 template:
-  org: luscombeu
-  name: egapx
+  org: johannesnicolaus
+  name: egapx_nf
   description: Prepare RNA-seq evidence (rRNA removal, subsampling, name sanitising) and run NCBI EGAPx on many genomes
   author: Johannes Nicolaus Wibisana
   version: 1.0.0dev

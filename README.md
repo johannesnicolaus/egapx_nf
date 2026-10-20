@@ -1,4 +1,4 @@
-# luscombeu/egapx
+# johannesnicolaus/egapx_nf
 
 [![Nextflow](https://img.shields.io/badge/version-%E2%89%A525.10.4-green?style=flat&logo=nextflow&logoColor=white&color=%230DC09D&link=https%3A%2F%2Fnextflow.io)](https://www.nextflow.io/)
 [![nf-core template version](https://img.shields.io/badge/nf--core_template-4.1.0-green?style=flat&logo=nfcore&logoColor=white&color=%2324B064&link=https%3A%2F%2Fnf-co.re)](https://github.com/nf-core/tools/releases/tag/4.1.0)
@@ -6,7 +6,7 @@
 
 ## Introduction
 
-**luscombeu/egapx** annotates many genomes with [NCBI EGAPx](https://github.com/ncbi/egapx), the
+**johannesnicolaus/egapx_nf** annotates many genomes with [NCBI EGAPx](https://github.com/ncbi/egapx), the
 NCBI Eukaryotic Genome Annotation Pipeline. EGAPx itself is used **unmodified**: the pipeline clones
 the official release you choose (`--egapx_version`) and runs it with the matching `ncbi/egapx`
 container. Around it, the pipeline prepares the RNA-seq evidence so that EGAPx accepts it and runs
@@ -90,7 +90,7 @@ See [docs/usage.md](docs/usage.md) for all options, disk-space planning and resu
 
 ## Credits
 
-luscombeu/egapx was written by Johannes Nicolaus Wibisana (Luscombe Unit, OIST). EGAPx is developed by NCBI;
+johannesnicolaus/egapx_nf was written by Johannes Nicolaus Wibisana (Luscombe Unit, OIST). EGAPx is developed by NCBI;
 please cite EGAPx when using this pipeline.
 
 ## Citations

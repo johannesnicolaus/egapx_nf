@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/luscombeu/egapx/master/nextflow_schema.json",
-    "title": "luscombeu/egapx pipeline parameters",
+    "$id": "https://raw.githubusercontent.com/johannesnicolaus/egapx_nf/master/nextflow_schema.json",
+    "title": "johannesnicolaus/egapx_nf pipeline parameters",
     "description": "Prepare RNA-seq evidence (rRNA removal, subsampling, name sanitising) and run NCBI EGAPx on many genomes",
     "type": "object",
     "$defs": {

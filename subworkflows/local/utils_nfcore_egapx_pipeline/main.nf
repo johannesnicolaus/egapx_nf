@@ -1,5 +1,5 @@
 //
-// Subworkflow with functionality specific to the luscombeu/egapx pipeline
+// Subworkflow with functionality specific to the johannesnicolaus/egapx_nf pipeline
 //
 
 /*

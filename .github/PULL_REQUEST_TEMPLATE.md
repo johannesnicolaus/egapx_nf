@@ -1,21 +1,21 @@
 <!--
-# luscombeu/egapx pull request
+# johannesnicolaus/egapx_nf pull request
 
-Many thanks for contributing to luscombeu/egapx!
+Many thanks for contributing to johannesnicolaus/egapx_nf!
 
 Please fill in the appropriate checklist below (delete whatever is not relevant).
 These are the most common things requested on pull requests (PRs).
 
 Remember that PRs should be made against the dev branch, unless you're preparing a pipeline release.
 
-Learn more about contributing: [CONTRIBUTING.md](https://github.com/luscombeu/egapx/tree/master/docs/CONTRIBUTING.md)
+Learn more about contributing: [CONTRIBUTING.md](https://github.com/johannesnicolaus/egapx_nf/tree/master/docs/CONTRIBUTING.md)
 -->
 
 ## PR checklist
 
 - [ ] This comment contains a description of changes (with reason).
 - [ ] If you've fixed a bug or added code that should be tested, add tests!
-- [ ] If you've added a new tool - have you followed the pipeline conventions in the [contribution docs](https://github.com/luscombeu/egapx/tree/master/docs/CONTRIBUTING.md)
+- [ ] If you've added a new tool - have you followed the pipeline conventions in the [contribution docs](https://github.com/johannesnicolaus/egapx_nf/tree/master/docs/CONTRIBUTING.md)
 - [ ] Make sure your code lints (`nf-core pipelines lint`).
 - [ ] Ensure the test suite passes (`nextflow run . -profile test,docker --outdir <OUTDIR>`).
 - [ ] Check for unexpected warnings in debug mode (`nextflow run . -profile debug,test,docker --outdir <OUTDIR>`).

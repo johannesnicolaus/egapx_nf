@@ -1,4 +1,4 @@
-# luscombeu/egapx: Usage
+# johannesnicolaus/egapx_nf: Usage
 
 ## Samplesheets
 
