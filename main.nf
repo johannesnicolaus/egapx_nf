@@ -1,9 +1,9 @@
 #!/usr/bin/env nextflow
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    luscombeu/egapx
+    johannesnicolaus/egapx_nf
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Github : https://github.com/luscombeu/egapx
+    Github : https://github.com/johannesnicolaus/egapx_nf
 ----------------------------------------------------------------------------------------
 */
 
@@ -28,7 +28,8 @@ include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_egap
 workflow LUSCOMBEU_EGAPX {
 
     take:
-    samplesheet // channel: samplesheet read in from --input
+    genomes // channel: genomes from --input
+    reads   // channel: RNA-seq evidence from --reads
 
     main:
 
@@ -36,7 +37,8 @@ workflow LUSCOMBEU_EGAPX {
     // WORKFLOW: Run pipeline
     //
     EGAPX (
-        samplesheet,
+        genomes,
+        reads,
         params.multiqc_config,
         params.multiqc_logo,
         params.multiqc_methods_description,
@@ -64,6 +66,7 @@ workflow {
         args,
         params.outdir,
         params.input,
+        params.reads,
         params.help,
         params.help_full,
         params.show_hidden
@@ -73,7 +76,8 @@ workflow {
     // WORKFLOW: Run main workflow
     //
     LUSCOMBEU_EGAPX (
-        PIPELINE_INITIALISATION.out.samplesheet
+        PIPELINE_INITIALISATION.out.genomes,
+        PIPELINE_INITIALISATION.out.reads
     )
     //
     // SUBWORKFLOW: Run completion tasks

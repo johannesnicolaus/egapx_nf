@@ -1,0 +1,57 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/johannesnicolaus/egapx_nf/master/assets/schema_reads.json",
+    "title": "johannesnicolaus/egapx_nf pipeline - params.reads schema (RNA-seq evidence)",
+    "description": "One row per RNA-seq library or long-read run",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "evidence_group": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_]+$",
+                "errorMessage": "evidence_group must be provided (letters, digits, '_')",
+                "meta": ["evidence_group"]
+            },
+            "library": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "library must be provided and cannot contain spaces (it is sanitised for EGAPx automatically)",
+                "meta": ["library"]
+            },
+            "read_type": {
+                "type": "string",
+                "enum": ["short", "long_cdna", "long_rna"],
+                "errorMessage": "read_type must be 'short', 'long_cdna' or 'long_rna' (direct RNA; converted U->T)",
+                "meta": ["read_type"]
+            },
+            "fastq_1": {
+                "type": "string",
+                "format": "path",
+                "exists": true,
+                "errorMessage": "fastq_1: R1 FASTQ (short), or a FASTQ file / directory of FASTQ chunks (long reads)"
+            },
+            "fastq_2": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\\S+\\.f(ast)?q(\\.gz)?$",
+                "errorMessage": "fastq_2: R2 FASTQ of a paired-end short-read library (optional)"
+            },
+            "sra": {
+                "type": "string",
+                "pattern": "^[DES]RR[0-9]+$",
+                "errorMessage": "sra must be an SRA/ENA/DDBJ run accession (SRR/ERR/DRR...)",
+                "meta": ["sra"]
+            },
+            "condition": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "condition cannot contain spaces; used by --one_per_condition",
+                "meta": ["condition"]
+            }
+        },
+        "required": ["evidence_group", "library", "read_type"],
+        "anyOf": [{ "required": ["fastq_1"] }, { "required": ["sra"] }]
+    }
+}

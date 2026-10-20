@@ -1,4 +1,4 @@
-# luscombeu/egapx: Citations
+# johannesnicolaus/egapx_nf: Citations
 
 ## [nf-core](https://pubmed.ncbi.nlm.nih.gov/32055031/)
 
@@ -9,6 +9,42 @@
 > Di Tommaso P, Chatzou M, Floden EW, Barja PP, Palumbo E, Notredame C. Nextflow enables reproducible computational workflows. Nat Biotechnol. 2017 Apr 11;35(4):316-319. doi: 10.1038/nbt.3820. PubMed PMID: 28398311.
 
 ## Pipeline tools
+
+- [EGAPx](https://github.com/ncbi/egapx)
+
+> NCBI Eukaryotic Genome Annotation Pipeline - External (EGAPx). National Center for Biotechnology Information. Please cite the release used (`--egapx_version`) and the NCBI Eukaryotic Genome Annotation Pipeline documentation: https://www.ncbi.nlm.nih.gov/refseq/annotation_euk/process/
+
+- [SRA Toolkit](https://github.com/ncbi/sra-tools)
+
+> SRA Toolkit Development Team. https://github.com/ncbi/sra-tools
+
+- [barrnap](https://github.com/tseemann/barrnap)
+
+> Seemann T. barrnap: Bacterial ribosomal RNA predictor. https://github.com/tseemann/barrnap
+
+- [BEDTools](https://pubmed.ncbi.nlm.nih.gov/20110278/)
+
+> Quinlan AR, Hall IM. BEDTools: a flexible suite of utilities for comparing genomic features. Bioinformatics. 2010;26(6):841-842. doi: 10.1093/bioinformatics/btq033.
+
+- [BBMap / BBDuk](https://sourceforge.net/projects/bbmap/)
+
+> Bushnell B. BBMap: a fast, accurate, splice-aware aligner. https://sourceforge.net/projects/bbmap/
+
+- [seqtk](https://github.com/lh3/seqtk)
+
+> Li H. seqtk: Toolkit for processing sequences in FASTA/Q formats. https://github.com/lh3/seqtk
+
+- [SeqKit](https://pubmed.ncbi.nlm.nih.gov/27706213/)
+
+> Shen W, Le S, Li Y, Hu F. SeqKit: a cross-platform and ultrafast toolkit for FASTA/Q file manipulation. PLoS One. 2016;11(10):e0163962. doi: 10.1371/journal.pone.0163962.
+
+- [GffRead and GffCompare](https://pubmed.ncbi.nlm.nih.gov/32489650/)
+
+> Pertea G, Pertea M. GFF Utilities: GffRead and GffCompare. F1000Res. 2020;9:304. doi: 10.12688/f1000research.23297.2.
+
+- [BUSCO](https://pubmed.ncbi.nlm.nih.gov/34320186/)
+
+> Manni M, Berkeley MR, Seppey M, Simão FA, Zdobnov EM. BUSCO update: novel and streamlined workflows along with broader and deeper phylogenetic coverage for scoring of eukaryotic, prokaryotic, and viral genomes. Mol Biol Evol. 2021;38(10):4647-4654. doi: 10.1093/molbev/msab199.
 
 - [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 

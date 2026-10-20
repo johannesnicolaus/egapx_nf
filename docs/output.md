@@ -1,61 +1,89 @@
-# luscombeu/egapx: Output
+# johannesnicolaus/egapx_nf: Output
 
-## Introduction
-
-This document describes the output produced by the pipeline. Most of the plots are taken from the MultiQC report, which summarises results at the end of the pipeline.
-
-The directories listed below will be created in the results directory after the pipeline has finished. All paths are relative to the top-level results directory.
-
-<!-- TODO nf-core: Write this documentation describing your workflow's output -->
+All paths are relative to `--outdir`.
 
 ## Pipeline overview
 
-The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
+- [Final annotation](#final-annotation): the annotation with stable, genome-unique IDs
+- [EGAPx annotation](#egapx-annotation): the official EGAPx output for each genome
+- [EGAPx input](#egapx-input): input YAML and read tables given to EGAPx
+- [RNA-seq evidence](#rna-seq-evidence): rRNA reference, rRNA-removal logs, read counts, optionally the prepared reads
+- [Annotation QC](#annotation-qc): BUSCO, longest proteins, gffcompare against reference annotations
+- [FastQC](#fastqc) and [MultiQC](#multiqc)
+- [Pipeline information](#pipeline-information)
 
-- [FastQC](#fastqc) - Raw read QC
-- [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
-- [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
+### Final annotation
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `annotation/<genome_id>/`
+  - `<genome_id>.gff3`, `<genome_id>.gtf`: the annotation, with IDs `<id_prefix>_<seq>g<number>` / `.tN` / `.pN`. EGAPx IDs are kept as `egapx_id`, and gene symbols as `gene_name`.
+  - `<genome_id>.proteins.faa`, `<genome_id>.transcripts.fna`, `<genome_id>.cds.fna`: EGAPx sequences with renamed headers
+  - `<genome_id>.id_map.tsv`: gene, transcript and protein IDs, old and new, with coordinates, biotype and gene name
+
+</details>
+
+### EGAPx annotation
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `egapx/<genome_id>/`: EGAPx output, unchanged (see the [EGAPx documentation](https://github.com/ncbi/egapx#output))
+  - `complete.genomic.gff`, `complete.genomic.gtf`: the annotation
+  - `complete.proteins.faa`, `complete.cds.fna`, `complete.transcripts.fna`: sequences
+  - `complete.genomic.fna`: the genome as used by EGAPx
+  - `annotated_genome.asn`: ASN.1 for NCBI submission
+  - `busco/`, `stats/`, `GNOMON/`, `multiqc_report/`, `validated/`: EGAPx's own QC and evidence reports
+  - `nextflow/`: EGAPx's Nextflow logs, report, timeline and trace
+
+</details>
+
+Gene and transcript IDs are temporary (`egapxtmp_<n>`); EGAPx's `prepare_submission` assigns locus tags for NCBI
+submission.
+
+### EGAPx input
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `egapx_input/`
+  - `<genome_id>.egapx.yaml`: EGAPx input file (genome, taxid, read tables, `--egapx_extra_yaml`)
+  - `<genome_id>.short_reads.txt`, `<genome_id>.long_reads.txt`: read tables (`<set name> <file>` per line)
+
+</details>
+
+### RNA-seq evidence
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `evidence/rrna_reference/`: barrnap rRNA genes and the extracted rRNA sequences used by BBDuk
+- `evidence/<evidence_group>/rrna_removal/<library>.norrna.bbduk.log`: reads removed as rRNA, per library
+- `evidence/<evidence_group>/short_reads/<library>.counts.tsv`: read pairs given to EGAPx; the prepared FASTQ files too, with `--save_prepared_reads`
+- `evidence/<evidence_group>/long_reads/<library>.stats.tsv`: long-read statistics (seqkit); the merged FASTQ too, with `--save_prepared_reads`
+
+</details>
+
+### Annotation QC
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `qc/proteins/<id>.longest_proteins.faa`: longest protein per gene (EGAPx, and `<genome_id>_reference` for reference annotations)
+- `qc/busco/`: BUSCO short summaries and batch summaries for the same protein sets
+- `qc/gffcompare/<genome_id>_reference.*`: CDS-level comparison of the reference annotation (query) against EGAPx (reference)
+
+</details>
 
 ### FastQC
 
-<details markdown="1">
-<summary>Output files</summary>
-
-- `fastqc/`
-  - `*_fastqc.html`: FastQC report containing quality metrics.
-  - `*_fastqc.zip`: Zip archive containing the FastQC report, tab-delimited data file and plot images.
-
-</details>
-
-[FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) gives general quality metrics about your sequenced reads. It provides information about the quality score distribution across your reads, per base sequence content (%A/T/G/C), adapter contamination and overrepresented sequences. For further reading and documentation see the [FastQC help pages](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/).
+- `qc/fastqc/<evidence_group>/`: FastQC reports of the prepared short reads.
 
 ### MultiQC
 
-<details markdown="1">
-<summary>Output files</summary>
-
-- `multiqc/`
-  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
-  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
-  - `multiqc_plots/`: directory containing static images from the report in various formats.
-
-</details>
-
-[MultiQC](http://multiqc.info) is a visualization tool that generates a single HTML report summarising all samples in your project. Most of the pipeline QC results are visualised in the report and further statistics are available in the report data directory.
-
-Results generated by MultiQC collate pipeline QC from supported tools e.g. FastQC. The pipeline has special steps which also allow the software versions to be reported in the MultiQC output for future traceability. For more information about how to use MultiQC reports, see <http://multiqc.info>.
+- `multiqc/multiqc_report.html`: BUSCO, rRNA removal, FastQC and software versions in one report.
 
 ### Pipeline information
 
-<details markdown="1">
-<summary>Output files</summary>
-
-- `pipeline_info/`
-  - Reports generated by Nextflow: `execution_report.html`, `execution_timeline.html`, `execution_trace.txt` and `pipeline_dag.dot`/`pipeline_dag.svg`.
-  - Reports generated by the pipeline: `pipeline_report.html`, `pipeline_report.txt` and `software_versions.yml`. The `pipeline_report*` files will only be present if the `--email` / `--email_on_fail` parameter's are used when running the pipeline.
-  - Reformatted samplesheet files used as input to the pipeline: `samplesheet.valid.csv`.
-  - Parameters used by the pipeline run: `params.json`.
-
-</details>
-
-[Nextflow](https://docs.seqera.io/platform-cloud/reports/overview) provides excellent functionality for generating various reports relevant to the running and execution of the pipeline. This will allow you to troubleshoot errors with the running of the pipeline, and also provide you with other information such as launch commands, run times and resource usage.
+- `pipeline_info/`: Nextflow execution report, timeline, trace and DAG; software versions; parameters used (`params.json`).

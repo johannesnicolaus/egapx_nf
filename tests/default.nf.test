@@ -4,29 +4,28 @@ nextflow_pipeline {
     script "../main.nf"
     tag "pipeline"
 
-    test("-profile test") {
+    // EGAPx needs a cluster and hours of runtime, so the pipeline test is a stub run that checks the wiring:
+    // samplesheet parsing, name sanitising, evidence channels, EGAPx inputs and QC steps.
+    // The test samplesheets (conf/test.config) use paths relative to the repository root.
+    test("-profile test -stub") {
+
+        options "-stub"
 
         when {
             params {
-                outdir = "$outputDir"
+                outdir          = "$outputDir"
+                egapx_cache_dir = "$outputDir/egapx_cache"
+                egapx_workdir   = "$outputDir/egapx_work"
             }
         }
 
         then {
-            // stable_path: All files + folders in ${params.outdir}/ with a stable path (including file name)
-            def stable_path = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
-            // stable_content: All files in ${params.outdir}/ with stable content
-            def stable_content = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
             assert workflow.success
             assertAll(
-                { assert snapshot(
-                    // pipeline versions.yml file for multiqc from which Nextflow version is removed because we test pipelines on multiple Nextflow versions
-                    removeNextflowVersion("$outputDir/pipeline_info/egapx_software_mqc_versions.yml"),
-                    // All stable path name, with a relative path
-                    stable_path,
-                    // All files with stable contents
-                    stable_content
-                ).match() }
+                { assert path("$outputDir/egapx/test_genome/complete.genomic.gff").exists() },
+                { assert path("$outputDir/egapx_input/test_genome.egapx.yaml").exists() },
+                { assert path("$outputDir/evidence/testgroup/short_reads/lib_B.counts.tsv").exists() },
+                { assert path("$outputDir/multiqc/multiqc_report.html").exists() }
             )
         }
     }

@@ -1,10 +1,10 @@
 Run Name: $runName
 
 <% if (success){
-    out << "## luscombeu/egapx execution completed successfully! ##"
+    out << "## johannesnicolaus/egapx_nf execution completed successfully! ##"
 } else {
     out << """####################################################
-## luscombeu/egapx execution completed unsuccessfully! ##
+## johannesnicolaus/egapx_nf execution completed unsuccessfully! ##
 ####################################################
 The exit status of the task that caused the workflow execution to fail was: $exitStatus.
 The full error message was:
@@ -27,5 +27,5 @@ Pipeline Configuration:
 <% out << summary.collect{ k,v -> " - $k: $v" }.join("\n") %>
 
 --
-luscombeu/egapx
-https://github.com/luscombeu/egapx
+johannesnicolaus/egapx_nf
+https://github.com/johannesnicolaus/egapx_nf

@@ -1,5 +1,5 @@
 name: Feature request
-description: Suggest an idea for the luscombeu/egapx pipeline
+description: Suggest an idea for the johannesnicolaus/egapx_nf pipeline
 labels: enhancement
 body:
   - type: textarea
