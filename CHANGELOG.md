@@ -9,6 +9,9 @@ Initial release of johannesnicolaus/egapx_nf, created with the [nf-core](https:/
 
 ### `Added`
 
+- `--additional_proteins`: extra protein evidence for every genome (EGAPx `additional_proteins`).
+- `--single_exon_rescue`: second EGAPx run without the single-exon RNA-seq filter; homology-supported intronless genes are added at empty loci (`rescue=single_exon`, `<genome>.rescued_genes.tsv`).
+
 - Two samplesheets: genomes (`--input`) and RNA-seq evidence (`--reads`), linked by `evidence_group`.
 - Evidence preparation: SRA download, optional one library per condition, rRNA removal (BBDuk against
   barrnap rRNA genes or `--rrna_fasta`), subsampling to `--max_pairs_per_library`, EGAPx-safe library and read

@@ -61,7 +61,9 @@ Why these steps? In tests on *Oikopleura dioica* (EGAPx 1.0.1):
 | `--egapx_threads`         | `16`       | Threads for multi-threaded EGAPx tasks (EGAPx `params.threads`).                               |
 | `--egapx_bind_paths`      |            | Comma-separated paths to bind into the EGAPx container.                                        |
 | `--egapx_container`       |            | Use this image instead of `ncbi/egapx:<version>`.                                              |
-| `--egapx_extra_yaml`      |            | Lines appended to every EGAPx input YAML (e.g. `additional_proteins:`, `max_intron:`).         |
+| `--egapx_extra_yaml`      |            | Lines appended to every EGAPx input YAML (e.g. `max_intron:`, `tasks:` overrides).             |
+| `--additional_proteins`   |            | Protein FASTA added to EGAPx's protein evidence for every genome (EGAPx `additional_proteins`). |
+| `--single_exon_rescue`    | `false`    | Second EGAPx run per genome to recover intronless genes (see below). Doubles EGAPx compute.    |
 | `--egapx_extra_config`    |            | Extra Nextflow config for EGAPx tasks.                                                         |
 | `--egapx_env_setup`       |            | Shell commands run before EGAPx steps, e.g. `module load python/3.11.4 singularity nextflow`.  |
 | `--egapx_python`          | `python3`  | Python ≥ 3.11 for the EGAPx launcher.                                                          |
@@ -69,6 +71,26 @@ Why these steps? In tests on *Oikopleura dioica* (EGAPx 1.0.1):
 | `--keep_egapx_work`       | `false`    | Keep EGAPx work directories after success.                                                     |
 | `--max_parallel_small`    | `3`        | Small genomes annotated at the same time.                                                      |
 | `--max_parallel_large`    | `1`        | Large genomes annotated at the same time.                                                      |
+
+### Intronless genes: `--additional_proteins` and `--single_exon_rescue`
+
+EGAPx can miss intronless protein-coding genes, e.g. retrocopies (young duplicates). In *Oikopleura dioica*
+(EGAPx 1.0.1) it missed three intronless PAX3/7 genes that NCBI's RefSeq (EGAP) annotation, Augustus and the
+manual annotation all have, although they were well covered by RNA-seq. Two causes, two options:
+
+- **Protein evidence.** EGAPx's default protein set for a taxon can be small (for tunicates: 11 species, with
+  near-redundant paralogs removed). `--additional_proteins` adds a protein FASTA for every genome; UniProt
+  Swiss-Prot Metazoa (reviewed, taxonomy 33208) is a good general choice and needs nothing species-specific.
+- **Single-exon filter.** The Gnomon chainer discards single-exon models supported only by RNA-seq
+  (`-filters remove_single_exon_est_models`). Removing it genome-wide lost ~1,000 correct multi-exon genes in
+  our test, so `--single_exon_rescue` runs EGAPx a second time (`<genome>_relaxed`) without that filter and adds
+  only its single-exon protein-coding genes that do not overlap any gene of the main run (either strand) and have
+  homology support (protein evidence, or a named product). The relaxed chainer settings are derived from the
+  installed EGAPx release's defaults (`ui/assets/default_task_params.yaml`), and merged with `--egapx_extra_yaml`.
+  Rescued genes carry `rescue=single_exon`; they are listed in `annotation/<genome>/<genome>.rescued_genes.tsv`.
+
+Effect in *O. dioica* (two genomes): 26 and 20 genes added, all three intronless PAX3/7 genes recovered, BUSCO
+unchanged, missed intronless RefSeq genes 31 → 21. Relaxed runs count towards `--max_parallel_small/large`.
 
 ### Updating EGAPx
 

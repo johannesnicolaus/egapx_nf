@@ -170,7 +170,7 @@ def main():
             na['Name'] = symbol or gid
             na['gene_name'] = symbol
             na['egapx_id'] = attrs.get('locus_tag', re.sub(r'^gene-', '', oid))
-            for k in ('description', 'Dbxref', 'gbkey', 'gene_biotype', 'pseudo', 'partial', 'start_range', 'end_range'):
+            for k in ('description', 'Dbxref', 'gbkey', 'gene_biotype', 'pseudo', 'partial', 'start_range', 'end_range', 'rescue'):
                 if k in attrs:
                     na[k] = attrs[k]
             gene_id, tx_id = gid, None
@@ -182,7 +182,7 @@ def main():
                 na['Parent'] = new_id[parent]
                 na['egapx_id'] = re.sub(r'^rna-', '', oid)
                 for k in ('gbkey', 'product', 'model_evidence', 'Dbxref', 'partial', 'exception', 'Note', 'inference',
-                          'start_range', 'end_range'):
+                          'start_range', 'end_range', 'rescue'):
                     if k in attrs:
                         na[k] = attrs[k]
                 gene_id, tx_id = new_id[parent], tid

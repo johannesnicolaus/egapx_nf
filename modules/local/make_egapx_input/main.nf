@@ -8,8 +8,8 @@ process MAKE_EGAPX_INPUT {
         'nf-core/ubuntu:22.04' }"
 
     input:
-    tuple val(meta), path(fasta), path(short_reads, stageAs: 'short/*'), path(long_reads, stageAs: 'long/*')
-    path extra_yaml
+    tuple val(meta), path(fasta), path(short_reads, stageAs: 'short/*'), path(long_reads, stageAs: 'long/*'), path(extra_yamls, stageAs: 'extra/*')
+    path additional_proteins, stageAs: 'proteins/*'
 
     output:
     tuple val(meta), path("${meta.id}.egapx.yaml"), path("${meta.id}.short_reads.txt"), path("${meta.id}.long_reads.txt"), emit: input
@@ -20,6 +20,9 @@ process MAKE_EGAPX_INPUT {
     script:
     // EGAPx read tables: "<set name> <file>" per line, at most 2 files per set. Absolute, resolved paths
     // are used because EGAPx runs its own Nextflow session outside this task.
+    // extra_yamls: --egapx_extra_yaml, or for single-exon rescue runs that file merged with the relaxed chainer
+    // settings (RELAXED_CHAINER_YAML).
+    def proteins = additional_proteins ? "echo \"additional_proteins: \$(readlink -f ${additional_proteins})\"" : 'true'
     """
     : > ${meta.id}.short_reads.txt
     for f in \$(ls short/ 2>/dev/null | grep -E '_R1\\.fastq\\.gz\$' | sort); do
@@ -39,10 +42,12 @@ process MAKE_EGAPX_INPUT {
         echo "taxid: ${meta.taxid}"
         [ -s ${meta.id}.short_reads.txt ] && echo "short_reads: \$PWD/${meta.id}.short_reads.txt"
         [ -s ${meta.id}.long_reads.txt ] && echo "long_reads: \$PWD/${meta.id}.long_reads.txt"
-        [ -s "${extra_yaml}" ] && cat ${extra_yaml}
+        ${proteins}
+        for y in \$(ls extra/ 2>/dev/null | sort); do cat extra/\$y; echo; done
         true
     } > ${meta.id}.egapx.yaml
     grep -qE '^(short|long)_reads:' ${meta.id}.egapx.yaml || { echo "no RNA-seq evidence for ${meta.id}" >&2; exit 1; }
+    [ \$(grep -c '^tasks:' ${meta.id}.egapx.yaml) -le 1 ] || { echo "'tasks:' defined twice in the EGAPx YAML of ${meta.id}" >&2; exit 1; }
     """
 
     stub:

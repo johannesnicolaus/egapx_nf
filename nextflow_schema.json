@@ -332,7 +332,19 @@
                     "type": "string",
                     "format": "file-path",
                     "exists": true,
-                    "description": "YAML lines appended to every EGAPx input file (e.g. additional_proteins, max_intron)."
+                    "description": "YAML lines appended to every EGAPx input file (e.g. max_intron, task parameters)."
+                },
+                "additional_proteins": {
+                    "type": "string",
+                    "format": "file-path",
+                    "exists": true,
+                    "description": "Protein FASTA added to EGAPx's protein evidence for every genome (EGAPx `additional_proteins`).",
+                    "help_text": "EGAPx's default protein set is small for many taxa (for tunicates: 11 species, near-redundant paralogs removed), so genes with weak RNA-seq support can be missed. A broad curated set such as UniProt Swiss-Prot Metazoa helps and works for any species."
+                },
+                "single_exon_rescue": {
+                    "type": "boolean",
+                    "description": "Run EGAPx a second time without the chainer filter 'remove_single_exon_est_models' and add its single-exon protein-coding genes at loci where the main run has no gene, when they have homology support. Doubles EGAPx compute.",
+                    "help_text": "EGAPx discards single-exon models supported only by RNA-seq, which loses intronless genes such as retrocopies (young duplicates). Removing the filter genome-wide loses many correct multi-exon models, so the relaxed run only fills gaps. Added genes carry rescue=single_exon; the list is in annotation/<genome>/<genome>.rescued_genes.tsv."
                 },
                 "egapx_env_setup": {
                     "type": "string",
