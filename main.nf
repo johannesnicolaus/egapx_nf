@@ -25,7 +25,7 @@ include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_egap
 //
 // WORKFLOW: Run main analysis pipeline depending on type of input
 //
-workflow LUSCOMBEU_EGAPX {
+workflow JOHANNESNICOLAUS_EGAPX_NF {
 
     take:
     genomes // channel: genomes from --input
@@ -75,7 +75,7 @@ workflow {
     //
     // WORKFLOW: Run main workflow
     //
-    LUSCOMBEU_EGAPX (
+    JOHANNESNICOLAUS_EGAPX_NF (
         PIPELINE_INITIALISATION.out.genomes,
         PIPELINE_INITIALISATION.out.reads
     )
@@ -88,7 +88,7 @@ workflow {
         params.plaintext_email,
         params.outdir,
         params.monochrome_logs,
-        LUSCOMBEU_EGAPX.out.multiqc_report
+        JOHANNESNICOLAUS_EGAPX_NF.out.multiqc_report
     )
 }
 

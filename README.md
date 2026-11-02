@@ -28,12 +28,16 @@ within limited disk space:
 7. **EGAPx**, one genome per head job:
     - small and large genomes have separate concurrency limits (`--max_parallel_small`, `--max_parallel_large`);
     - failed genomes resume where they stopped;
-    - work directories are deleted on success.
-8. **Stable gene IDs**: `<id_prefix>_<seq>g<number>` genes (numbered along each chromosome in steps of 10),
+    - work directories are deleted on success;
+    - optional extra protein evidence (`--additional_proteins`, e.g. UniProt Swiss-Prot Metazoa).
+8. **Intronless genes** (optional, `--single_exon_rescue`): EGAPx drops single-exon genes supported only by RNA-seq,
+   which loses retrocopies (young duplicates). A second EGAPx run without that filter supplies homology-supported
+   single-exon genes at loci without a gene (`rescue=single_exon`).
+9. **Stable gene IDs**: `<id_prefix>_<seq>g<number>` genes (numbered along each chromosome in steps of 10),
    `.tN` transcripts and `.pN` proteins. EGAPx's temporary IDs are kept as `egapx_id`.
-9. **QC**: [`BUSCO`](https://busco.ezlab.org/) on the longest protein per gene, and an optional CDS-level comparison with
-   a reference annotation ([`gffcompare`](https://github.com/gpertea/gffcompare)), summarised with
-   [`MultiQC`](http://multiqc.info/).
+10. **QC**: [`BUSCO`](https://busco.ezlab.org/) on the longest protein per gene, summarised with
+   [`MultiQC`](http://multiqc.info/). For benchmarking only: an optional CDS-level comparison with an existing
+   annotation per genome (`reference_gff`, [`gffcompare`](https://github.com/gpertea/gffcompare)).
 
 ## Usage
 
@@ -47,7 +51,7 @@ Two samplesheets, linked by `evidence_group`:
 
 ```csv
 genome_id,fasta,evidence_group,taxid,size_class,reference_gff,id_prefix
-I25_prim,/path/I25_primary.fa,okinawa,34765,small,/path/I25_augustus.gff3,I25P
+I25_prim,/path/I25_primary.fa,okinawa,34765,small,,I25P
 AOM5_prim,/path/AOM5_primary.fasta,mainland,34765,large,,AOM5P
 BAR12_prim,/path/BAR12_primary.fa,europe,34765,small,,BAR12P
 ```
@@ -63,7 +67,8 @@ mainland,S2_HL_RNA,long_rna,/path/S2_HL_RNA.fastq.gz,,,S2_HL
 europe,PRJNA1492068_4hph,short,,,SRR39518291,4hph
 ```
 
-Each evidence group is prepared once and used for every genome in that group. Then:
+Each evidence group is prepared once and used for every genome in that group. `reference_gff` is only for
+benchmarking against an existing annotation; leave it empty for production runs. Then:
 
 ```bash
 nextflow run johannesnicolaus/egapx_nf \
@@ -71,6 +76,8 @@ nextflow run johannesnicolaus/egapx_nf \
    --input genomes.csv \
    --reads reads.csv \
    --egapx_version 1.0.1 \
+   --additional_proteins uniprot_sprot_metazoa.fasta \
+   --single_exon_rescue \
    --egapx_cache_dir /path/to/egapx_cache \
    --egapx_workdir /fast/scratch/egapx_work \
    --egapx_executor slurm --egapx_queue <partition> \

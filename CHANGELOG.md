@@ -3,14 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v1.0.0dev - [unreleased<!-- TODO nf-core: replace with date on release -->]
+## v1.0.0 - [2026-11-02]
 
 Initial release of johannesnicolaus/egapx_nf, created with the [nf-core](https://nf-co.re/) template.
+Used to annotate 29 *Oikopleura dioica* genomes (EGAPx 1.0.1).
 
 ### `Added`
-
-- `--additional_proteins`: extra protein evidence for every genome (EGAPx `additional_proteins`).
-- `--single_exon_rescue`: second EGAPx run without the single-exon RNA-seq filter; homology-supported intronless genes are added at empty loci (`rescue=single_exon`, `<genome>.rescued_genes.tsv`).
 
 - Two samplesheets: genomes (`--input`) and RNA-seq evidence (`--reads`), linked by `evidence_group`.
 - Evidence preparation: SRA download, optional one library per condition, rRNA removal (BBDuk against
@@ -22,6 +20,8 @@ Initial release of johannesnicolaus/egapx_nf, created with the [nf-core](https:/
   GFF3/GTF/FASTA and an old-to-new ID table (`--skip_rename`, `--gene_id_step`, `--gene_id_digits`).
 - QC: BUSCO on the longest protein per gene (EGAPx and reference annotations) and a CDS-level gffcompare
   against reference annotations.
+- `--additional_proteins`: extra protein evidence for every genome (EGAPx `additional_proteins`).
+- `--single_exon_rescue`: second EGAPx run without the single-exon RNA-seq filter; homology-supported intronless genes are added at empty loci (`rescue=single_exon`, `<genome>.rescued_genes.tsv`).
 
 ### `Fixed`
 
