@@ -1,0 +1,30 @@
+# Pfam domain names (regular expressions, matched at the start of the name, case-insensitive) treated as transposable
+# element domains by filter_complement.py (--complement_exclude_te): genes with any of these are not added.
+RVT
+rve
+Retrotrans
+gag
+DDE
+Tnp
+Transposase
+HTH_Tnp
+MULE
+Dimer_Tnp
+Phage_integrase
+Integrase
+CENP-B
+Helitron
+DUF4371
+zf-CCHC
+RNase_H
+Exo_endo_phos
+Peptidase_A17
+Pao
+Chromo_2
+DUF1758
+hAT
+Mariner
+Ty3
+Ty1
+Tc5
+Tc3

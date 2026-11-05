@@ -32,7 +32,10 @@ within limited disk space:
     - optional extra protein evidence (`--additional_proteins`, e.g. UniProt Swiss-Prot Metazoa).
 8. **Intronless genes** (optional, `--single_exon_rescue`): EGAPx drops single-exon genes supported only by RNA-seq,
    which loses retrocopies (young duplicates). A second EGAPx run without that filter supplies homology-supported
-   single-exon genes at loci without a gene (`rescue=single_exon`).
+   single-exon genes, added where [AGAT](https://github.com/NBISweden/AGAT) finds no overlap (`rescue=single_exon`).
+   **Complement annotation** (optional, `complement_gff` column): genes of another annotation (e.g. Augustus) with a
+   Pfam domain or Swiss-Prot hit, and no transposon domains, are added the same way (`complement=external`).
+   Finished EGAPx outputs can be reused (`--egapx_results`) to add these without rerunning EGAPx.
 9. **Stable gene IDs**: `<id_prefix>_<seq>g<number>` genes (numbered along each chromosome in steps of 10),
    `.tN` transcripts and `.pN` proteins. EGAPx's temporary IDs are kept as `egapx_id`.
 10. **QC**: [`BUSCO`](https://busco.ezlab.org/) on the longest protein per gene, summarised with

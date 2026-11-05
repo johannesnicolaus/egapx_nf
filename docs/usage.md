@@ -16,6 +16,7 @@ every genome that names it (e.g. one lineage or population).
 | `size_class`     | no       | `small` (default) or `large`: controls concurrency (see [Disk space](#disk-space-and-concurrency)). |
 | `reference_gff`  | no       | Existing annotation to compare with (BUSCO + CDS-level gffcompare).                                 |
 | `id_prefix`      | no       | Prefix of the stable gene IDs (letters and digits, unique per genome, e.g. `I25P`). Default: `genome_id` without non-alphanumeric characters. |
+| `complement_gff` | no       | Annotation whose evidence-supported genes are added where EGAPx has none (see [Complement annotation](#complement-annotation-optional)); needs `--complement_pfam`. |
 
 ### RNA-seq evidence (`--reads`)
 
@@ -64,6 +65,7 @@ Why these steps? In tests on *Oikopleura dioica* (EGAPx 1.0.1):
 | `--egapx_extra_yaml`      |            | Lines appended to every EGAPx input YAML (e.g. `max_intron:`, `tasks:` overrides).             |
 | `--additional_proteins`   |            | Protein FASTA added to EGAPx's protein evidence for every genome (EGAPx `additional_proteins`). |
 | `--single_exon_rescue`    | `false`    | Second EGAPx run per genome to recover intronless genes (see below). Doubles EGAPx compute.    |
+| `--egapx_results`         |            | Reuse finished EGAPx outputs instead of running EGAPx (see below).                             |
 | `--egapx_extra_config`    |            | Extra Nextflow config for EGAPx tasks.                                                         |
 | `--egapx_env_setup`       |            | Shell commands run before EGAPx steps, e.g. `module load python/3.11.4 singularity nextflow`.  |
 | `--egapx_python`          | `python3`  | Python ≥ 3.11 for the EGAPx launcher.                                                          |
@@ -83,14 +85,63 @@ manual annotation all have, although they were well covered by RNA-seq. Two caus
   Swiss-Prot Metazoa (reviewed, taxonomy 33208) is a good general choice and needs nothing species-specific.
 - **Single-exon filter.** The Gnomon chainer discards single-exon models supported only by RNA-seq
   (`-filters remove_single_exon_est_models`). Removing it genome-wide lost ~1,000 correct multi-exon genes in
-  our test, so `--single_exon_rescue` runs EGAPx a second time (`<genome>_relaxed`) without that filter and adds
-  only its single-exon protein-coding genes that do not overlap any gene of the main run (either strand) and have
-  homology support (protein evidence, or a named product). The relaxed chainer settings are derived from the
+  our test, so `--single_exon_rescue` runs EGAPx a second time (`<genome>_relaxed`) without that filter. Its
+  single-exon protein-coding genes with homology support (protein evidence, or a named product) are candidates, and
+  [AGAT](https://github.com/NBISweden/AGAT)'s `agat_sp_complement_annotations.pl` adds those that do not overlap the
+  main run (see [Added genes](#added-genes-agat)). The relaxed chainer settings are derived from the
   installed EGAPx release's defaults (`ui/assets/default_task_params.yaml`), and merged with `--egapx_extra_yaml`.
   Rescued genes carry `rescue=single_exon`; they are listed in `annotation/<genome>/<genome>.rescued_genes.tsv`.
 
 Effect in *O. dioica* (two genomes): 26 and 20 genes added, all three intronless PAX3/7 genes recovered, BUSCO
 unchanged, missed intronless RefSeq genes 31 → 21. Relaxed runs count towards `--max_parallel_small/large`.
+
+### Complement annotation (optional)
+
+An existing annotation of a genome (e.g. Augustus, a manual annotation) can fill gaps that EGAPx leaves: give it in
+the `complement_gff` column of `--input` (GFF3 or GTF) and the Pfam-A HMMs with `--complement_pfam`. For each
+protein-coding gene of the complement annotation the pipeline:
+
+1. extracts its proteins, CDS and transcripts (gffread);
+2. searches the proteins against Pfam-A (`hmmsearch --cut_ga`) and, with `--complement_swissprot` (protein FASTA or
+   DIAMOND database), against Swiss-Prot (DIAMOND);
+3. keeps genes with the evidence that `--complement_filter` asks for: `pfam_or_swissprot` (default), `pfam`,
+   `swissprot` or `none`; genes with transposable-element domains or hits are dropped (`--complement_exclude_te`,
+   list in `assets/transposon_pfam.txt`);
+4. adds those that AGAT finds do not overlap EGAPx genes (after the single-exon rescue), optionally only with a CDS of
+   at least `--complement_min_cds` nt.
+
+Added genes carry `complement=external`, their original ID (`complement_id`) and Pfam domains (`pfam`); their
+description comes from the Swiss-Prot hit or the Pfam domains. They are listed in
+`annotation/<genome>/<genome>.complement_genes.tsv`. Without a filter most ab initio genes at EGAPx-free loci are
+spurious: in *O. dioica* (I69) only 13% of Augustus genes at such loci matched an NCBI RefSeq gene, against about
+40% with the Pfam/Swiss-Prot filter, which also kept small, divergent gene-family copies (FGF9/16/20) that have no
+Swiss-Prot hit.
+
+| Parameter                 | Default             | Description                                                        |
+| ------------------------- | ------------------- | ------------------------------------------------------------------ |
+| `--complement_pfam`       |                     | Pfam-A HMMs (`Pfam-A.hmm`); required when any genome has a `complement_gff` |
+| `--complement_swissprot`  |                     | Swiss-Prot proteins (FASTA, may be gzipped) or a DIAMOND `.dmnd` database |
+| `--complement_filter`     | `pfam_or_swissprot` | `pfam_or_swissprot`, `pfam`, `swissprot` or `none`                 |
+| `--complement_exclude_te` | `true`              | Drop genes with transposable-element domains or hits               |
+| `--complement_min_cds`    | `0`                 | Minimum CDS length (nt) of added genes (AGAT `--size_min`)         |
+
+### Added genes (AGAT)
+
+Both the single-exon rescue and the complement annotation use `agat_sp_complement_annotations.pl --ref <current
+annotation> --add <candidates>` to decide which candidate genes are added: a candidate is added if it overlaps no
+gene, or overlaps genes without overlapping their CDS (e.g. a gene in an intron); if any of its isoforms overlaps
+a CDS, the whole gene is left out. AGAT rewrites the annotation it outputs, so the pipeline only reads the accepted
+gene IDs from it and adds those genes' original records to the original EGAPx files (`bin/merge_added_genes.py`).
+Candidates are written with EGAPx's ID conventions (`egapxtmp_N`, renumbered from 8,000,000 for the complement and
+9,000,000 for the rescue), so they are renamed like EGAPx genes.
+
+### Reusing finished EGAPx runs (`--egapx_results`)
+
+`--egapx_results <dir>` skips evidence preparation and EGAPx and starts from finished EGAPx outputs: `<dir>` holds
+one EGAPx output folder per genome (`<genome_id>`, and `<genome_id>_relaxed` with `--single_exon_rescue`), as in the
+`egapx/` folder of an earlier run of this pipeline. Use it to add a complement annotation, change the rescue or
+rename again without rerunning EGAPx; `--reads`, `--egapx_cache_dir` and `--egapx_workdir` are then not needed. BUSCO
+uses `--busco_lineages_path` if given, or else downloads the lineage.
 
 ### Updating EGAPx
 

@@ -170,7 +170,7 @@ def main():
             na['Name'] = symbol or gid
             na['gene_name'] = symbol
             na['egapx_id'] = attrs.get('locus_tag', re.sub(r'^gene-', '', oid))
-            for k in ('description', 'Dbxref', 'gbkey', 'gene_biotype', 'pseudo', 'partial', 'start_range', 'end_range', 'rescue'):
+            for k in ('description', 'Dbxref', 'gbkey', 'gene_biotype', 'pseudo', 'partial', 'start_range', 'end_range', 'rescue', 'complement', 'complement_id', 'pfam'):
                 if k in attrs:
                     na[k] = attrs[k]
             gene_id, tx_id = gid, None
@@ -181,8 +181,8 @@ def main():
                 na['ID'] = tid
                 na['Parent'] = new_id[parent]
                 na['egapx_id'] = re.sub(r'^rna-', '', oid)
-                for k in ('gbkey', 'product', 'model_evidence', 'Dbxref', 'partial', 'exception', 'Note', 'inference',
-                          'start_range', 'end_range', 'rescue'):
+                for k in ('gbkey', 'product', 'model_evidence', 'experiment', 'Dbxref', 'partial', 'exception', 'Note',
+                          'inference', 'start_range', 'end_range', 'rescue', 'complement', 'complement_id', 'pfam'):
                     if k in attrs:
                         na[k] = attrs[k]
                 gene_id, tx_id = new_id[parent], tid
@@ -198,7 +198,7 @@ def main():
                     na['protein_id'] = pid
                     na['egapx_id'] = attrs.get('protein_id', '').split('|')[-1]
                 na['Parent'] = tid
-                for k in ('gbkey', 'product', 'exception', 'Note', 'transl_except', 'partial', 'start_range', 'end_range'):
+                for k in ('gbkey', 'product', 'experiment', 'exception', 'Note', 'transl_except', 'partial', 'start_range', 'end_range'):
                     if k in attrs:
                         na[k] = attrs[k]
             else:

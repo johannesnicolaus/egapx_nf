@@ -28,8 +28,9 @@ include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_egap
 workflow JOHANNESNICOLAUS_EGAPX_NF {
 
     take:
-    genomes // channel: genomes from --input
-    reads   // channel: RNA-seq evidence from --reads
+    genomes    // channel: genomes from --input
+    reads      // channel: RNA-seq evidence from --reads
+    complement // channel: complement annotations from --input (complement_gff)
 
     main:
 
@@ -39,6 +40,7 @@ workflow JOHANNESNICOLAUS_EGAPX_NF {
     EGAPX (
         genomes,
         reads,
+        complement,
         params.multiqc_config,
         params.multiqc_logo,
         params.multiqc_methods_description,
@@ -77,7 +79,8 @@ workflow {
     //
     JOHANNESNICOLAUS_EGAPX_NF (
         PIPELINE_INITIALISATION.out.genomes,
-        PIPELINE_INITIALISATION.out.reads
+        PIPELINE_INITIALISATION.out.reads,
+        PIPELINE_INITIALISATION.out.complement
     )
     //
     // SUBWORKFLOW: Run completion tasks
