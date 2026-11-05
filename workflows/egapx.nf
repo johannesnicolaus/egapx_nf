@@ -7,6 +7,7 @@ include { FASTQC                 } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { PREPARE_EVIDENCE       } from '../subworkflows/local/prepare_evidence/main'
 include { RUN_EGAPX              } from '../subworkflows/local/run_egapx/main'
+include { COMPLEMENT_ANNOTATION  } from '../subworkflows/local/complement_annotation/main'
 include { ANNOTATION_QC          } from '../subworkflows/local/annotation_qc/main'
 include { RENAME_ANNOTATION      } from '../modules/local/rename_annotation/main'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
@@ -25,6 +26,7 @@ workflow EGAPX {
     take:
     ch_genomes     // channel: [ meta, fasta, reference_gff ] from --input
     ch_reads       // channel: [ meta, [ files ] ] from --reads
+    ch_complement  // channel: [ meta, fasta, complement_gff ] from --input (optional column)
     multiqc_config
     multiqc_logo
     multiqc_methods_description
@@ -35,36 +37,49 @@ workflow EGAPX {
     def ch_versions = channel.empty()
     def ch_multiqc_files = channel.empty()
     //
-    // SUBWORKFLOW: RNA-seq evidence (download, rRNA removal, subsampling, long-read merging)
+    // SUBWORKFLOW: RNA-seq evidence (download, rRNA removal, subsampling, long-read merging); not needed when finished
+    // EGAPx outputs are reused (--egapx_results)
     //
-    PREPARE_EVIDENCE(ch_reads, ch_genomes)
-    ch_multiqc_files = ch_multiqc_files.mix(PREPARE_EVIDENCE.out.rrna_logs.map { _meta, log -> log })
+    def ch_short = channel.empty()
+    def ch_long = channel.empty()
+    if (!params.egapx_results) {
+        PREPARE_EVIDENCE(ch_reads, ch_genomes)
+        ch_multiqc_files = ch_multiqc_files.mix(PREPARE_EVIDENCE.out.rrna_logs.map { _meta, log -> log })
+        ch_short = PREPARE_EVIDENCE.out.short_reads
+        ch_long = PREPARE_EVIDENCE.out.long_reads
 
-    //
-    // MODULE: FastQC on the reads given to EGAPx
-    //
-    if (!params.skip_fastqc) {
-        FASTQC(PREPARE_EVIDENCE.out.short_reads)
-        ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.map { _meta, file -> file })
+        //
+        // MODULE: FastQC on the reads given to EGAPx
+        //
+        if (!params.skip_fastqc) {
+            FASTQC(ch_short)
+            ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.map { _meta, file -> file })
+        }
     }
 
     //
-    // SUBWORKFLOW: EGAPx (official NCBI release) on every genome
+    // SUBWORKFLOW: EGAPx (official NCBI release) on every genome, with the optional single-exon rescue
     //
-    RUN_EGAPX(ch_genomes, PREPARE_EVIDENCE.out.short_reads, PREPARE_EVIDENCE.out.long_reads)
+    RUN_EGAPX(ch_genomes, ch_short, ch_long)
+
+    //
+    // SUBWORKFLOW: optional complement annotation (evidence-filtered genes of another annotation, merged with AGAT)
+    //
+    COMPLEMENT_ANNOTATION(RUN_EGAPX.out.outdir, ch_complement)
+    def ch_annotation = COMPLEMENT_ANNOTATION.out.outdir
+
+    //
+    // MODULE: stable, genome-unique gene IDs (EGAPx IDs kept as egapx_id)
+    //
+    def ch_final_gff = ch_annotation.map { meta, dir -> [ meta, dir.resolve('complete.genomic.gff') ] }
+    if (!params.skip_rename) {
+        RENAME_ANNOTATION(ch_annotation, params.gene_id_step, params.gene_id_digits)
+        ch_final_gff = RENAME_ANNOTATION.out.gff
+    }
 
     //
     // SUBWORKFLOW: BUSCO and comparison with reference annotations
     //
-    //
-    // MODULE: stable, genome-unique gene IDs (EGAPx IDs kept as egapx_id)
-    //
-    def ch_final_gff = RUN_EGAPX.out.gff
-    if (!params.skip_rename) {
-        RENAME_ANNOTATION(RUN_EGAPX.out.outdir, params.gene_id_step, params.gene_id_digits)
-        ch_final_gff = RENAME_ANNOTATION.out.gff
-    }
-
     ANNOTATION_QC(ch_genomes, ch_final_gff, RUN_EGAPX.out.busco_lineage)
     ch_multiqc_files = ch_multiqc_files.mix(ANNOTATION_QC.out.busco_summaries.map { _meta, txt -> txt })
 

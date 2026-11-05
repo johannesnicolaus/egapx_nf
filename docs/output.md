@@ -40,7 +40,21 @@ All paths are relative to `--outdir`.
 </details>
 
 Gene and transcript IDs are temporary (`egapxtmp_<n>`); EGAPx's `prepare_submission` assigns locus tags for NCBI
-submission.
+submission. With `--single_exon_rescue` the relaxed run is in `egapx/<genome_id>_relaxed/`.
+
+### Added genes
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `annotation/<genome_id>/<genome_id>.rescued_genes.tsv`: intronless genes added from the relaxed EGAPx run
+  (`--single_exon_rescue`); `rescue=single_exon` in the annotation
+- `annotation/<genome_id>/<genome_id>.complement_genes.tsv`: genes added from `complement_gff`, with their original
+  ID, Pfam domains, Swiss-Prot hit and description; `complement=external` in the annotation
+
+</details>
+
+The renamed annotation (`annotation/<genome_id>/`) contains EGAPx's genes and the added ones.
 
 ### EGAPx input
 

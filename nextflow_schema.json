@@ -12,8 +12,7 @@
             "description": "Define where the pipeline should find input data and save output data.",
             "required": [
                 "input",
-                "outdir",
-                "reads"
+                "outdir"
             ],
             "properties": {
                 "input": {
@@ -264,10 +263,6 @@
             "type": "object",
             "fa_icon": "fas fa-cogs",
             "description": "How the official NCBI EGAPx release is obtained and run.",
-            "required": [
-                "egapx_cache_dir",
-                "egapx_workdir"
-            ],
             "properties": {
                 "egapx_version": {
                     "type": "string",
@@ -343,8 +338,14 @@
                 },
                 "single_exon_rescue": {
                     "type": "boolean",
-                    "description": "Run EGAPx a second time without the chainer filter 'remove_single_exon_est_models' and add its single-exon protein-coding genes at loci where the main run has no gene, when they have homology support. Doubles EGAPx compute.",
+                    "description": "Run EGAPx a second time without the chainer filter 'remove_single_exon_est_models' and add its homology-supported single-exon protein-coding genes where AGAT (agat_sp_complement_annotations.pl) finds no overlap with the main run. Doubles EGAPx compute.",
                     "help_text": "EGAPx discards single-exon models supported only by RNA-seq, which loses intronless genes such as retrocopies (young duplicates). Removing the filter genome-wide loses many correct multi-exon models, so the relaxed run only fills gaps. Added genes carry rescue=single_exon; the list is in annotation/<genome>/<genome>.rescued_genes.tsv."
+                },
+                "egapx_results": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "exists": true,
+                    "description": "Reuse finished EGAPx outputs instead of running EGAPx: a folder with one EGAPx output folder per genome (<genome_id>, and <genome_id>_relaxed with --single_exon_rescue), e.g. the egapx/ folder of an earlier run. --reads, --egapx_cache_dir and --egapx_workdir are then not needed."
                 },
                 "egapx_env_setup": {
                     "type": "string",
@@ -442,6 +443,48 @@
                     "description": "Zero-padded width of the gene number."
                 }
             }
+        },
+        "complement_options": {
+            "title": "Complement annotation options",
+            "type": "object",
+            "fa_icon": "fas fa-puzzle-piece",
+            "description": "Optional: add evidence-supported genes from another annotation per genome (complement_gff column in --input), where they do not overlap EGAPx genes.",
+            "properties": {
+                "complement_pfam": {
+                    "type": "string",
+                    "format": "file-path",
+                    "exists": true,
+                    "description": "Pfam-A HMMs (Pfam-A.hmm, uncompressed). Required when any genome has a complement_gff."
+                },
+                "complement_swissprot": {
+                    "type": "string",
+                    "format": "file-path",
+                    "exists": true,
+                    "description": "Protein FASTA (e.g. uniprot_sprot.fasta.gz) or DIAMOND database (.dmnd) for the Swiss-Prot filter."
+                },
+                "complement_filter": {
+                    "type": "string",
+                    "default": "pfam_or_swissprot",
+                    "enum": [
+                        "pfam_or_swissprot",
+                        "pfam",
+                        "swissprot",
+                        "none"
+                    ],
+                    "description": "Evidence a complement gene needs: a Pfam domain (hmmsearch --cut_ga) and/or a Swiss-Prot hit (DIAMOND)."
+                },
+                "complement_exclude_te": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Do not add complement genes with transposable-element Pfam domains or Swiss-Prot hits (assets/transposon_pfam.txt)."
+                },
+                "complement_min_cds": {
+                    "type": "integer",
+                    "default": 0,
+                    "minimum": 0,
+                    "description": "Minimum CDS length (nt) of added complement genes (AGAT --size_min)."
+                }
+            }
         }
     },
     "allOf": [
@@ -453,6 +496,9 @@
         },
         {
             "$ref": "#/$defs/egapx_options"
+        },
+        {
+            "$ref": "#/$defs/complement_options"
         },
         {
             "$ref": "#/$defs/rename_options"

@@ -3,6 +3,28 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.1.0 - [2026-11-05]
+
+### `Added`
+
+- Optional complement annotation (`complement_gff` column in `--input`): genes with a non-transposon Pfam domain
+  (`--complement_pfam`, hmmsearch `--cut_ga`) and/or a Swiss-Prot hit (`--complement_swissprot`, DIAMOND) are added
+  where AGAT (`agat_sp_complement_annotations.pl`) finds no overlap with EGAPx genes (`--complement_filter`,
+  `--complement_exclude_te`, `--complement_min_cds`); `<genome>.complement_genes.tsv`.
+- `--egapx_results`: reuse finished EGAPx outputs (main and relaxed runs) instead of running EGAPx.
+
+### `Changed`
+
+- `--single_exon_rescue`: candidates from the relaxed EGAPx run are now added with AGAT's overlap rule (no CDS overlap;
+  genes inside introns or UTRs allowed) instead of the stricter no-overlap rule; `bin/rescue_single_exon.py` replaced
+  by `bin/select_single_exon.py` and `bin/merge_added_genes.py`.
+- `--reads`, `--egapx_cache_dir` and `--egapx_workdir` are only required when EGAPx runs.
+- The renamed GFF3 keeps EGAPx's `experiment` attribute (e.g. `COORDINATES: polyA evidence`) on transcripts and exons.
+
+### `Fixed`
+
+- BUSCO lineage path no longer depends on `--egapx_cache_dir` (failed with `--egapx_results`).
+
 ## v1.0.0 - [2026-11-02]
 
 Initial release of johannesnicolaus/egapx_nf, created with the [nf-core](https://nf-co.re/) template.

@@ -45,12 +45,14 @@ workflow ANNOTATION_QC {
                     }
                     lineages[0]
                 }
-        def lineages_path = params.busco_lineages_path ?: "${params.egapx_cache_dir}/local_cache/busco_downloads"
+        // EGAPx's own BUSCO download (offline) unless --busco_lineages_path is given; with --egapx_results and no
+        // EGAPx cache, BUSCO downloads the lineage itself
+        def lineages_path = params.busco_lineages_path ?: (params.egapx_cache_dir ? "${params.egapx_cache_dir}/local_cache/busco_downloads" : null)
         BUSCO_BUSCO(
             LONGEST_PROTEINS.out.proteins,
             params.busco_mode,
             ch_lineage,
-            file(lineages_path),
+            lineages_path ? file(lineages_path, checkIfExists: true) : [],
             params.busco_config ? file(params.busco_config, checkIfExists: true) : [],
             true
         )

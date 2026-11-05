@@ -64,6 +64,13 @@
                 "meta": [
                     "id_prefix"
                 ]
+            },
+            "complement_gff": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\\S+\\.(gff|gff3|gtf)(\\.gz)?$",
+                "errorMessage": "complement_gff must be an existing GFF/GTF file (optional): genes from it are added to EGAPx when they pass --complement_filter and do not overlap EGAPx genes"
             }
         },
         "required": [

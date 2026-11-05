@@ -92,20 +92,39 @@ workflow PIPELINE_INITIALISATION {
     if (dup_prefixes) {
         error("Gene ID prefixes must be unique across genomes (set id_prefix in --input): ${dup_prefixes.join(', ')}")
     }
-    ch_genomes = channel.fromList(genome_rows)
-        .map { meta, fasta, reference_gff ->
-            [ meta + [ size_class: meta.size_class ?: 'small', id_prefix: meta.id_prefix ?: meta.id.replaceAll(/[^A-Za-z0-9]/, '') ], fasta, reference_gff ?: [] ]
+    if (!params.egapx_results && !(params.egapx_cache_dir && params.egapx_workdir)) {
+        error("--egapx_cache_dir and --egapx_workdir are required (unless --egapx_results reuses finished EGAPx outputs)")
+    }
+    if (genome_rows.any { row -> row[3] } && !params.complement_pfam) {
+        error("--complement_pfam (Pfam-A HMMs) is required when genomes have a complement_gff")
+    }
+    def ch_rows = channel.fromList(genome_rows)
+        .map { meta, fasta, reference_gff, complement_gff ->
+            [ meta + [ size_class: meta.size_class ?: 'small', id_prefix: meta.id_prefix ?: meta.id.replaceAll(/[^A-Za-z0-9]/, '') ],
+              fasta, reference_gff ?: [], complement_gff ?: [] ]
         }
+    ch_genomes = ch_rows.map { meta, fasta, reference_gff, _complement -> [ meta, fasta, reference_gff ] }
+    ch_complement = ch_rows
+        .filter { _meta, _fasta, _ref, complement_gff -> complement_gff }
+        .map { meta, fasta, _ref, complement_gff -> [ meta, fasta, complement_gff ] }
 
     //
     // RNA-seq evidence: one row per library / long-read run (--reads)
     //
-    def read_rows = samplesheetToList(reads, "${projectDir}/assets/schema_reads.json")
-    def checked = validateReadsSamplesheet(read_rows, genome_rows.collect { row -> row[0].evidence_group }.unique())
-    ch_reads = channel.fromList(checked)
+    def ch_reads
+    if (reads) {
+        def read_rows = samplesheetToList(reads, "${projectDir}/assets/schema_reads.json")
+        def checked = validateReadsSamplesheet(read_rows, genome_rows.collect { row -> row[0].evidence_group }.unique())
+        ch_reads = channel.fromList(checked)
+    } else if (params.egapx_results) {
+        ch_reads = channel.empty()   // EGAPx outputs are reused: no RNA-seq evidence needed
+    } else {
+        error("--reads is required (unless --egapx_results reuses finished EGAPx outputs)")
+    }
 
     emit:
-    genomes  = ch_genomes  // channel: [ meta(id, evidence_group, taxid, size_class), fasta, reference_gff|[] ]
+    genomes    = ch_genomes    // channel: [ meta(id, evidence_group, taxid, size_class), fasta, reference_gff|[] ]
+    complement = ch_complement // channel: [ meta, fasta, complement_gff ] (genomes with a complement_gff)
     reads    = ch_reads    // channel: [ meta(id, library, evidence_group, read_type, sra, condition), [ files ] ]
     versions = ch_versions
 }

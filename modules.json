@@ -25,6 +25,16 @@
                         "git_sha": "5d0b9662e1ba73bd252d1f27978d2633174176ff",
                         "installed_by": ["modules"]
                     },
+                    "diamond/blastp": {
+                        "branch": "master",
+                        "git_sha": "7b3452a23773f687ededb4befd037920e5a51341",
+                        "installed_by": ["modules"]
+                    },
+                    "diamond/makedb": {
+                        "branch": "master",
+                        "git_sha": "7b3452a23773f687ededb4befd037920e5a51341",
+                        "installed_by": ["modules"]
+                    },
                     "fastqc": {
                         "branch": "master",
                         "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
@@ -38,6 +48,11 @@
                     "gffread": {
                         "branch": "master",
                         "git_sha": "b3d1ca84b3f0051498abb91bd4333b701be4384d",
+                        "installed_by": ["modules"]
+                    },
+                    "hmmer/hmmsearch": {
+                        "branch": "master",
+                        "git_sha": "7b3452a23773f687ededb4befd037920e5a51341",
                         "installed_by": ["modules"]
                     },
                     "multiqc": {
