@@ -1,0 +1,23 @@
+Changes in component 'nf-core/sratools/fasterqdump'
+'modules/nf-core/sratools/fasterqdump/environment.yml' is unchanged
+Changes in 'sratools/fasterqdump/main.nf':
+--- modules/nf-core/sratools/fasterqdump/main.nf
++++ modules/nf-core/sratools/fasterqdump/main.nf
+@@ -25,7 +25,9 @@
+     def args2 = task.ext.args2 ?: ''
+     def prefix = task.ext.prefix ?: "${meta.id}"
+     def outfile = "${prefix}.fastq"
+-    def exclude_third = meta.single_end ? '' : "mv $outfile $prefix || echo 'No third file'"
++    // egapx_nf patch: move the unpaired file aside only when the run is paired (${prefix}_1.fastq exists), so that a
++    // single-end run whose layout was not known in advance keeps its only file
++    def exclude_third = meta.single_end ? '' : "if [ -f ${prefix}_1.fastq ]; then mv $outfile $prefix || echo 'No third file'; fi"
+     // Excludes the "${prefix}.fastq" file from output `reads` channel for paired end cases and
+     // avoids the '.' in the path bug: https://github.com/ncbi/sra-tools/issues/865
+     def key_file = ''
+
+'modules/nf-core/sratools/fasterqdump/meta.yml' is unchanged
+'modules/nf-core/sratools/fasterqdump/.conda-lock/linux_arm64-bd-9acd5f161c455e6e_1.txt' is unchanged
+'modules/nf-core/sratools/fasterqdump/.conda-lock/linux_amd64-bd-dd7a0b6dd85ec25a_1.txt' is unchanged
+'modules/nf-core/sratools/fasterqdump/tests/main.nf.test.snap' is unchanged
+'modules/nf-core/sratools/fasterqdump/tests/main.nf.test' is unchanged
+************************************************************

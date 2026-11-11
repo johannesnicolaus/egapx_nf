@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Fixed`
 
+- SRA runs that fasterq-dump writes as a single unsuffixed FASTQ (Oxford Nanopore, PacBio) failed in
+  `SRATOOLS_FASTERQDUMP` (`pigz: skipping: *.fastq does not exist`): every SRA row had `single_end: false`, so the
+  module moved the only file aside as the unpaired reads of a paired run. Long-read SRA rows are now `single_end: true`,
+  and the module (patched, `sratools-fasterqdump.diff`) moves the unpaired file aside only when `<prefix>_1.fastq`
+  exists.
 - Nextflow 26.04 and later: the pipeline failed to compile under the strict syntax parser (`is_relaxed` is not
   defined in `RUN_EGAPX`).
 - Nextflow 26.04 and later: boolean and integer parameters given on the command line (`--skip_busco`,

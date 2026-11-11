@@ -29,7 +29,11 @@ workflow PREPARE_EVIDENCE {
         .of("/LIBS/GUID = \"${UUID.randomUUID()}\"\n/libs/cloud/report_instance_identity = \"true\"\n")
         .collectFile(name: 'user-settings.mkfg')
         .collect()
-    SRATOOLS_PREFETCH(ch_split.sra.map { meta, _files -> [ meta, meta.sra ] }, ch_ncbi_settings, [])
+    // A long-read run is always one file: single_end: true keeps SRATOOLS_FASTERQDUMP from moving it aside as the
+    // unpaired file of a paired run. Short-read layouts are not known before the download; the module patch keeps
+    // the only file of a single-end run, and single_end is set from the number of files after the dump.
+    def ch_sra = ch_split.sra.map { meta, _files -> [ meta + [ single_end: meta.read_type != 'short' ], meta.sra ] }
+    SRATOOLS_PREFETCH(ch_sra, ch_ncbi_settings, [])
     SRATOOLS_FASTERQDUMP(SRATOOLS_PREFETCH.out.sra, ch_ncbi_settings, [])
     def ch_downloaded = SRATOOLS_FASTERQDUMP.out.reads.map { meta, files ->
         def fq = files instanceof List ? files.sort { f -> f.name } : [ files ]

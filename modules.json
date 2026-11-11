@@ -63,7 +63,8 @@
                     "sratools/fasterqdump": {
                         "branch": "master",
                         "git_sha": "c8f20a5b1c9ac08e48a3e317276a97904066bd3a",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/sratools/fasterqdump/sratools-fasterqdump.diff"
                     },
                     "sratools/prefetch": {
                         "branch": "master",
