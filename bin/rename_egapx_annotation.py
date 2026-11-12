@@ -124,7 +124,11 @@ def main():
     new_id, egapx_of = {}, {}
     id_map = []
     protein_new = {}   # EGAPx protein id (egapxtmp_X-P1) -> new protein id
-    tx_key_new = {}    # (seqid, strand, exon tuple) -> new transcript id
+    # Transcript FASTA headers carry no transcript ID, only location and gbkey, so records are matched
+    # by structure. Isoforms can share an exon chain (e.g. an mRNA and a misc_RNA of the same gene),
+    # so each key holds a list of new IDs, handed out once each in isoform order.
+    tx_key_new = collections.defaultdict(list)   # (seqid, strand, exon tuple, gbkey) -> new transcript ids
+    tx_loc_new = collections.defaultdict(list)   # (seqid, strand, exon tuple) -> new transcript ids
     for g in top:
         code = chrom_code(g[0])
         counters[code] += 1
@@ -141,7 +145,8 @@ def main():
             t_egapx = re.sub(r'^rna-', '', t[9]['ID'])
             pid = ''
             exons = sorted((int(e[3]), int(e[4])) for e in children[t[9]['ID']] if e[2] == 'exon')
-            tx_key_new[(t[0], t[6], tuple(exons))] = tid
+            tx_key_new[(t[0], t[6], tuple(exons), t[9].get('gbkey', ''))].append(tid)
+            tx_loc_new[(t[0], t[6], tuple(exons))].append(tid)
             cdss = [c for c in children[t[9]['ID']] if c[2] == 'CDS']
             if cdss:
                 pid = f'{gid}.p{n}'
@@ -277,18 +282,25 @@ def main():
 
     def rename_transcripts(src, dst):
         n = missing = 0
+        written = set()
         with open(dst, 'w') as fh:
             for name, seq in read_fasta(src):
                 m = re.search(r'\[location=([^\]]+)\]', name)
                 seqid = re.match(r'lcl\|(.+)_[A-Za-z]+_egapxtmp_', name.split()[0])
-                key = None
+                gbkey = re.search(r'\[gbkey=([^\]]+)\]', name)
+                candidates = []
                 if m and seqid:
                     loc = m.group(1)
                     strand = '-' if loc.startswith('complement') else '+'
                     exons = tuple(sorted((int(s), int(e or s)) for s, e in re.findall(r'<?(\d+)(?:\.\.>?(\d+))?', loc)))
-                    key = (seqid.group(1), strand, exons)
-                new = tx_key_new.get(key)
-                if not new:
+                    if gbkey:
+                        candidates = tx_key_new.get((seqid.group(1), strand, exons, gbkey.group(1)), [])
+                    else:
+                        candidates = tx_loc_new.get((seqid.group(1), strand, exons), [])
+                new = next((t for t in candidates if t not in written), None)
+                if new:
+                    written.add(new)
+                else:
                     missing += 1
                     new = name.split()[0]
                 old = tx_egapx.get(new, '')
