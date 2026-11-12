@@ -73,7 +73,7 @@ workflow PIPELINE_INITIALISATION {
         before_text,
         after_text,
         command,
-        false
+        null    // cli_typecast: nf-schema's default, which casts CLI params (--flag, --n 5) under strict syntax (Nextflow >= 26.04)
     )
 
     //
