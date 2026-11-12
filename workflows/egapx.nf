@@ -71,10 +71,10 @@ workflow EGAPX {
     //
     // MODULE: stable, genome-unique gene IDs (EGAPx IDs kept as egapx_id)
     //
-    def ch_final_gff = ch_annotation.map { meta, dir -> [ meta, dir.resolve('complete.genomic.gff') ] }
+    def ch_final_gff = ch_annotation.map { meta, dir -> [ meta, dir.resolve('complete.genomic.gff'), dir.resolve('complete.proteins.faa') ] }
     if (!params.skip_rename) {
         RENAME_ANNOTATION(ch_annotation, params.gene_id_step, params.gene_id_digits)
-        ch_final_gff = RENAME_ANNOTATION.out.gff
+        ch_final_gff = RENAME_ANNOTATION.out.gff.join(RENAME_ANNOTATION.out.proteins)
     }
 
     //
