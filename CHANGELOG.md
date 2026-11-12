@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   BUSCO in transcriptome mode refused these files.
 - `EGAPX_DOWNLOAD` ran once per taxid in parallel into the shared cache, so with several taxids a download could
   read another's half-written files (`no such table: TaxidInfo`, missing BUSCO lineage tarball); now `maxForks = 1`.
+- `qc/proteins/<id>.longest_proteins.faa` (and BUSCO on it) translated the genome with gffread, so selenoproteins
+  had an internal stop at their selenocysteine codon and EGAPx's corrections were lost. The longest isoform is
+  chosen as before, but its protein now comes from EGAPx's own protein FASTA (by the CDS `protein_id`); reference
+  annotations, which come without proteins, are still translated with gffread.
 
 ## v1.1.0 - [2026-11-05]
 

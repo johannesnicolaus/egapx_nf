@@ -11,19 +11,20 @@ workflow ANNOTATION_QC {
 
     take:
     ch_genomes        // channel: [ meta, fasta, reference_gff ]
-    ch_egapx_gff      // channel: [ meta, gff ]
+    ch_egapx_gff      // channel: [ meta, gff, proteins ] (proteins: EGAPx's own, with its sequence corrections)
     ch_busco_lineage  // channel: [ meta, lineage chosen by EGAPx ]
 
     main:
 
     def ch_fasta = ch_genomes.map { meta, fasta, _ref -> [ meta.id, fasta ] }
     def ch_egapx = ch_egapx_gff
-        .map { meta, gff -> [ meta.id, meta + [ source: 'egapx' ], gff ] }
+        .map { meta, gff, proteins -> [ meta.id, meta + [ source: 'egapx' ], gff, proteins ] }
         .join(ch_fasta)
-        .map { _id, meta, gff, fasta -> [ meta, gff, fasta ] }
+        .map { _id, meta, gff, proteins, fasta -> [ meta, gff, fasta, proteins ] }
+    // reference annotations come without proteins: translated from the genome
     def ch_reference = params.skip_reference_comparison ? channel.empty() : ch_genomes
         .filter { _meta, _fasta, ref -> ref }
-        .map { meta, fasta, ref -> [ meta + [ id: "${meta.id}_reference", genome_id: meta.id, source: 'reference' ], ref, fasta ] }
+        .map { meta, fasta, ref -> [ meta + [ id: "${meta.id}_reference", genome_id: meta.id, source: 'reference' ], ref, fasta, [] ] }
 
     LONGEST_PROTEINS(ch_egapx.mix(ch_reference))
 
