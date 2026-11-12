@@ -3,6 +3,21 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### `Fixed`
+
+- Nextflow 26.04 and later: the pipeline failed to compile under the strict syntax parser (`is_relaxed` is not
+  defined in `RUN_EGAPX`).
+- Nextflow 26.04 and later: boolean and integer parameters given on the command line (`--skip_busco`,
+  `--gene_id_step 5`) failed validation as strings. nf-schema 2.5.1 -> 2.7.3, and CLI parameters are now cast by
+  nf-schema's default instead of never.
+- `<genome>.transcripts.fna` had one transcript twice and its sibling missing when two isoforms of a gene share an
+  exon chain (e.g. an mRNA and a misc_RNA); records are now matched on exon chain and `gbkey`, each ID used once.
+  BUSCO in transcriptome mode refused these files.
+- `EGAPX_DOWNLOAD` ran once per taxid in parallel into the shared cache, so with several taxids a download could
+  read another's half-written files (`no such table: TaxidInfo`, missing BUSCO lineage tarball); now `maxForks = 1`.
+
 ## v1.1.0 - [2026-11-05]
 
 ### `Added`
