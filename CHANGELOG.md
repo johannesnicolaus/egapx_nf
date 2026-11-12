@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   had an internal stop at their selenocysteine codon and EGAPx's corrections were lost. The longest isoform is
   chosen as before, but its protein now comes from EGAPx's own protein FASTA (by the CDS `protein_id`); reference
   annotations, which come without proteins, are still translated with gffread.
+- `MERGE_COMPLEMENT` / `MERGE_RESCUED` failed (`AGAT kept 904 candidate transcripts, expected 905`) when a candidate
+  gene had two isoforms with identical exons and CDS (seen in the ANISEED *Halocynthia roretzi* models): AGAT drops
+  the duplicate. Such isoforms are now accepted with their gene and kept, like the other original records.
 
 ## v1.1.0 - [2026-11-05]
 

@@ -70,11 +70,25 @@ def main():
     def is_added(text):
         return any(n in loci for n in LOCUS.findall(text))
 
-    # every transcript of an accepted gene must be in AGAT's output too (AGAT adds or drops genes as a whole)
+    # every transcript of an accepted gene must be in AGAT's output too (AGAT adds or drops genes as a whole), except
+    # an isoform whose exons and CDS are identical to a kept isoform of the same gene: AGAT removes such duplicates
+    # (e.g. two ANISEED isoforms with one structure). They are kept here like every other original line.
     tx_of_accepted = {attrs(p[8])['ID'] for p in cand if p[2] in ('mRNA', 'transcript') and is_added(p[8])}
-    if tx_of_accepted != accepted_tx:
-        raise SystemExit(f'AGAT kept {len(accepted_tx)} candidate transcripts, expected {len(tx_of_accepted)}: '
-                         'were IDs renamed?')
+    gene_of = {attrs(p[8])['ID']: attrs(p[8]).get('Parent') for p in cand
+               if p[2] in ('mRNA', 'transcript') and 'ID' in attrs(p[8])}
+    structure = {}
+    for p in cand:
+        if p[2] in ('exon', 'CDS'):
+            for parent in attrs(p[8]).get('Parent', '').split(','):
+                structure.setdefault(parent, []).append((p[2], p[0], p[3], p[4], p[6]))
+    shape = {t: sorted(structure.get(t, [])) for t in tx_of_accepted}
+    duplicates = {t for t in tx_of_accepted - accepted_tx
+                  if shape[t] and any(gene_of.get(k) == gene_of[t] and shape.get(k) == shape[t] for k in accepted_tx)}
+    if tx_of_accepted - duplicates != accepted_tx:
+        raise SystemExit(f'AGAT kept {len(accepted_tx)} candidate transcripts, expected '
+                         f'{len(tx_of_accepted - duplicates)}: were IDs renamed?')
+    if duplicates:
+        print(f'{len(duplicates)} isoforms identical to a sibling (removed by AGAT) kept, e.g. {sorted(duplicates)[0]}')
 
     os.makedirs(a.outdir, exist_ok=True)
     with open(os.path.join(a.outdir, 'complete.genomic.gff'), 'w') as out:
