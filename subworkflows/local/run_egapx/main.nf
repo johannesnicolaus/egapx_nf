@@ -12,6 +12,12 @@ include { SELECT_SINGLE_EXON              } from '../../../modules/local/select_
 include { AGAT_COMPLEMENT as AGAT_RESCUE  } from '../../../modules/local/agat_complement/main'
 include { MERGE_ADDED_GENES as MERGE_RESCUED } from '../../../modules/local/merge_added_genes/main'
 
+// A function, not a closure in main: (Nextflow's strict syntax, the default from 26.04, does not let
+// is_relaxed(meta) call a closure, and the emit: section cannot see variables of main:)
+def is_relaxed(meta) {
+    return meta.egapx_variant == 'relaxed'
+}
+
 workflow RUN_EGAPX {
 
     take:
@@ -21,7 +27,6 @@ workflow RUN_EGAPX {
 
     main:
 
-    def is_relaxed = { meta -> meta.egapx_variant == 'relaxed' }
     def ch_outdir_all
     def ch_busco_lineage
     def ch_busco_summary

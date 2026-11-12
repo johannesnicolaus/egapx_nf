@@ -3,7 +3,8 @@ process EGAPX_DOWNLOAD {
     label 'process_egapx_host'
 
     // Fills the EGAPx support-data cache (reference proteins, HMM, BUSCO lineage...) once per taxid,
-    // so that the per-genome runs never download in parallel. Runs on the host (see EGAPX_SETUP).
+    // so that the per-genome runs never download in parallel. The taxids share one cache, so
+    // conf/modules.config sets maxForks = 1. Runs on the host (see EGAPX_SETUP).
 
     input:
     tuple val(taxid), path(yaml)
