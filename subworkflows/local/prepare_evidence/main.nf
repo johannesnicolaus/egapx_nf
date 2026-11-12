@@ -25,8 +25,12 @@ workflow PREPARE_EVIDENCE {
         sra: !files && meta.sra
         local: true
     }
+    // sra-tools settings with a fixed GUID: a random one gave the settings file, and so every download and every task
+    // after it, a new hash on each run, and -resume redid the downloads and the EGAPx runs. The default is derived from
+    // the work directory; --ncbi_guid sets it (e.g. to the GUID of an earlier run, to reuse its downloads).
+    def ncbi_guid = params.ncbi_guid ?: UUID.nameUUIDFromBytes(workflow.workDir.toString().bytes).toString()
     def ch_ncbi_settings = channel
-        .of("/LIBS/GUID = \"${UUID.randomUUID()}\"\n/libs/cloud/report_instance_identity = \"true\"\n")
+        .of("/LIBS/GUID = \"${ncbi_guid}\"\n/libs/cloud/report_instance_identity = \"true\"\n")
         .collectFile(name: 'user-settings.mkfg')
         .collect()
     SRATOOLS_PREFETCH(ch_split.sra.map { meta, _files -> [ meta, meta.sra ] }, ch_ncbi_settings, [])

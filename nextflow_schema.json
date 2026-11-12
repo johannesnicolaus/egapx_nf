@@ -233,6 +233,11 @@
                     "default": 11,
                     "description": "Seed for seqtk subsampling (same for R1 and R2)."
                 },
+                "ncbi_guid": {
+                    "type": "string",
+                    "description": "GUID written to the sra-tools settings file for SRA downloads. Default: derived from the work directory, so -resume reuses earlier downloads.",
+                    "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                },
                 "one_per_condition": {
                     "type": "boolean",
                     "description": "Keep only one short-read library per (evidence_group, condition): the one with the largest R1 file."

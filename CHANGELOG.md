@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Fixed`
 
+- `-resume` never reused SRA downloads, nor anything after them (subsampling, EGAPx runs): the sra-tools settings
+  file had a new random GUID on each run, so its hash changed. The GUID is now derived from the work directory, or
+  set with the new `--ncbi_guid`.
 - Nextflow 26.04 and later: the pipeline failed to compile under the strict syntax parser (`is_relaxed` is not
   defined in `RUN_EGAPX`).
 - Nextflow 26.04 and later: boolean and integer parameters given on the command line (`--skip_busco`,
