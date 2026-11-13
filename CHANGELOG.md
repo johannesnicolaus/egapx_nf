@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Fixed`
 
+- `LONGEST_PROTEINS` failed with `from_annotation.faa: cannot overwrite existing file` whenever the annotation came
+  with its own proteins: the pipeline's shell runs with `set -C` (noclobber), and the file was written a second
+  time with `>`.
 - Nextflow 26.04 and later: the pipeline failed to compile under the strict syntax parser (`is_relaxed` is not
   defined in `RUN_EGAPX`).
 - Nextflow 26.04 and later: boolean and integer parameters given on the command line (`--skip_busco`,

@@ -56,9 +56,9 @@ process LONGEST_PROTEINS {
                 /^>/ { split(\$0, h, " "); id = substr(h[1], 2); keep = ((id in tx) && !(id in done))
                        if (keep) { done[id] = 1; print ">" tx[id]; print tx[id] > "found_ids.txt" }
                        next }
-                keep' longest_ids.txt tx2protein.tsv ${own_proteins} > from_annotation.faa
+                keep' longest_ids.txt tx2protein.tsv ${own_proteins} >| from_annotation.faa
         touch found_ids.txt
-        awk 'FILENAME == "found_ids.txt" { found[\$1] = 1; next } !(\$1 in found)' found_ids.txt longest_ids.txt > to_translate.txt
+        awk 'FILENAME == "found_ids.txt" { found[\$1] = 1; next } !(\$1 in found)' found_ids.txt longest_ids.txt >| to_translate.txt
         echo "${meta.id}: \$(grep -c '>' from_annotation.faa) proteins from ${own_proteins}, \$(wc -l < to_translate.txt) translated with gffread" >&2
     fi
     : > translated.faa
